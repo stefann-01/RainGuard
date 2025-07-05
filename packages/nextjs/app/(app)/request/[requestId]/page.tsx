@@ -339,16 +339,11 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                       <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
                     </div>
 
-                    <button
-                      className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
-                        isRequester
-                          ? "bg-skyblue-400 hover:bg-skyblue-500 text-white"
-                          : "bg-beige-300 text-beige-600 cursor-not-allowed"
-                      }`}
-                      disabled={!isRequester}
-                    >
-                      {isRequester ? "Accept Offer" : "Only Requester Can Accept"}
-                    </button>
+                    {isRequester && (
+                      <button className="btn border-none btn-sm rounded-lg shadow-md font-semibold w-full bg-skyblue-400 hover:bg-skyblue-500 text-white">
+                        Accept Offer
+                      </button>
+                    )}
                   </div>
                 ))}
 
