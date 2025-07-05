@@ -26,10 +26,6 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/my-page",
   },
   {
-    label: "Recommended",
-    href: "/recommended",
-  },
-  {
     label: "Debug",
     href: "/debug",
   },
