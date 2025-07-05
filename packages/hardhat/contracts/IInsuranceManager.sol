@@ -56,8 +56,8 @@ interface IInsuranceManager {
 
     function submitOffer(uint256 requestId, uint256 premium) external;
     function selectOffer(uint256 requestId, uint256 offerId) external;
-    function fundPool(uint256 requestId) external payable;
-    function payPremium(uint256 requestId) external payable;
+    function fundPool(uint256 requestId, uint256 amount) external;
+    function payPremium(uint256 requestId, uint256 amount) external;
     function settlePolicy(uint256 requestId, bool conditionMet) external;
     function withdrawInvestment(uint256 requestId) external;
     function updateReputation(address expert, int256 scoreChange) external;

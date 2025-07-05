@@ -12,9 +12,14 @@ import {
 import { IInsuranceManager } from "./IInsuranceManager.sol";
 import { EventsLib } from "./EventsLib.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract InsuranceManager is IInsuranceManager, Ownable {
-    constructor() Ownable(0x1dbfaCAAB8792FbA1b5993eF09D59E388Bb0F395) {}
+    address public usdc;
+
+    constructor(address initialOwner, address usdcAddress) Ownable(initialOwner) {
+        usdc = usdcAddress;
+    }
     // Storage
     uint256 public requestCount;
     mapping(uint256 => InsuranceRequest) public requests;
@@ -78,16 +83,18 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         emit EventsLib.OfferSelected(requestId, offerId);
     }
 
-    // Investors fund the pool for the selected request
-    function fundPool(uint256 requestId) external payable {
+    // Investors fund the pool for the selected request using USDC
+    function fundPool(uint256 requestId, uint256 amount) external {
         InsuranceRequest storage req = requests[requestId];
         require(req.status == 1, "Not in funding phase");
-        require(msg.value > 0, "No funds sent");
+        require(amount > 0, "No funds sent");
+        // Transfer USDC from sender to contract
+        require(IERC20(usdc).transferFrom(msg.sender, address(this), amount), "USDC transfer failed");
         // Add or update investment
         bool found = false;
         for (uint256 i = 0; i < req.investments.length; i++) {
             if (req.investments[i].investor == msg.sender) {
-                req.investments[i].amount += msg.value;
+                req.investments[i].amount += amount;
                 found = true;
                 break;
             }
@@ -95,11 +102,11 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         if (!found) {
             req.investments.push(Investment({
                 investor: msg.sender,
-                amount: msg.value
+                amount: amount
             }));
         }
-        req.totalFunded += msg.value;
-        emit EventsLib.PoolFunded(requestId, msg.sender, msg.value);
+        req.totalFunded += amount;
+        emit EventsLib.PoolFunded(requestId, msg.sender, amount);
         // Funding goal is amount (coverage only)
         if (req.totalFunded >= req.amount) {
             req.status = 2; // premium payment phase
@@ -107,32 +114,29 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         }
     }
 
-    // User pays premium after pool is funded; premium is distributed to investors
-    function payPremium(uint256 requestId) external payable {
+    // User pays premium after pool is funded; premium is distributed to investors and expert using USDC
+    function payPremium(uint256 requestId, uint256 amount) external {
         InsuranceRequest storage req = requests[requestId];
         require(req.user == msg.sender, "Only request creator can pay premium");
         require(req.status == 2, "Not in premium payment phase");
         require(req.offers.length > 0, "No offer selected");
         require(req.selectedOffer < req.offers.length, "Invalid selected offer");
         uint256 premium = req.offers[req.selectedOffer].premium;
-        require(msg.value == premium, "Incorrect premium amount");
+        require(amount == premium, "Incorrect premium amount");
+        // Transfer USDC from sender to contract
+        require(IERC20(usdc).transferFrom(msg.sender, address(this), amount), "USDC transfer failed");
         // Calculate total investment
-        uint256 totalFunded = 0;
-        for (uint256 i = 0; i < req.investments.length; i++) {
-            totalFunded += req.investments[i].amount;
-        }
+        uint256 totalFunded = req.totalFunded;
         require(totalFunded >= req.amount, "Pool not fully funded");
         // Calculate expert share (5%)
         uint256 expertShare = (premium * 5) / 100;
         address expert = req.offers[req.selectedOffer].expert;
-        (bool sentExpert, ) = expert.call{value: expertShare}("");
-        require(sentExpert, "Expert payment failed");
+        require(IERC20(usdc).transfer(expert, expertShare), "Expert payment failed");
         // Distribute remaining premium (95%) to investors
         uint256 remainingPremium = premium - expertShare;
         for (uint256 i = 0; i < req.investments.length; i++) {
             uint256 share = (remainingPremium * req.investments[i].amount) / totalFunded;
-            (bool sent, ) = req.investments[i].investor.call{value: share}("");
-            require(sent, "Premium distribution failed");
+            require(IERC20(usdc).transfer(req.investments[i].investor, share), "Premium distribution failed");
         }
         req.status = 3; // active
         emit EventsLib.PolicyActivated(requestId, requestId);
@@ -148,11 +152,10 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         bool payout = conditionMet;
         req.payout = payout;
         if (payout) {
-            // Pay out to user from the pool
+            // Pay out to user from the pool in USDC
             uint256 payoutAmount = req.amount;
-            require(address(this).balance >= payoutAmount, "Insufficient contract balance");
-            (bool sent, ) = req.user.call{value: payoutAmount}("");
-            require(sent, "Payout failed");
+            require(IERC20(usdc).balanceOf(address(this)) >= payoutAmount, "Insufficient USDC balance");
+            require(IERC20(usdc).transfer(req.user, payoutAmount), "Payout failed");
         }
         req.status = 4; // expired
         emit EventsLib.PolicySettled(requestId, payout);
@@ -179,8 +182,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             }
         }
         require(amount > 0, "No funds to withdraw");
-        (bool sent, ) = msg.sender.call{value: amount}("");
-        require(sent, "Withdrawal failed");
+        require(IERC20(usdc).transfer(msg.sender, amount), "Withdrawal failed");
     }
 
     // Update expert reputation (simple logic)
