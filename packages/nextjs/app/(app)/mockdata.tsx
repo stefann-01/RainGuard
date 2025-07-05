@@ -7,7 +7,7 @@ export const mockData: InsuranceRequest[] = [
     title: "Downtown Rain Protection",
     description:
       "Comprehensive rain insurance coverage for downtown business district. Protects against heavy rainfall that could disrupt operations and cause property damage.",
-    user: "0x1234567890123456789012345678901234567890",
+    user: "0xA7491A27e9B3F0C000D18dCa75638413Ea10c9Bd",
     amount: 5000, // $5000 coverage
     conditions: [
       {
@@ -45,7 +45,7 @@ export const mockData: InsuranceRequest[] = [
     title: "Suburban Wind Shield",
     description:
       "Wind damage protection for suburban residential areas. Covers property damage from sustained high winds that could affect homes and landscaping.",
-    user: "0x2345678901234567890123456789012345678901",
+    user: "0xA7491A27e9B3F0C000D18dCa75638413Ea10c9Bd",
     amount: 3000,
     conditions: [
       {
@@ -111,7 +111,7 @@ export const mockData: InsuranceRequest[] = [
     title: "Park Hail Protection",
     description:
       "Specialized hail damage coverage for public parks and recreational areas. Protects against damage to facilities and landscaping from severe hailstorms.",
-    user: "0x4567890123456789012345678901234567890123",
+    user: "0xA7491A27e9B3F0C000D18dCa75638413Ea10c9Bd",
     amount: 2000,
     conditions: [
       {
@@ -184,7 +184,7 @@ export const mockData: InsuranceRequest[] = [
     title: "Airport Terminal Weather Guard",
     description:
       "Critical weather insurance for airport operations. Protects against delays and cancellations due to severe weather conditions affecting air traffic.",
-    user: "0x6789012345678901234567890123456789012345",
+    user: "0xA7491A27e9B3F0C000D18dCa75638413Ea10c9Bd",
     amount: 25000,
     conditions: [
       {
@@ -607,7 +607,7 @@ export const mockData: InsuranceRequest[] = [
     title: "Agricultural Crop Hail Insurance",
     description:
       "Specialized hail damage protection for agricultural fields and crops. Covers crop loss and damage from severe hailstorms during growing season.",
-    user: "0x1718192021222324252627282930313233343536",
+    user: "0xA7491A27e9B3F0C000D18dCa75638413Ea10c9Bd",
     amount: 8500,
     conditions: [
       {

@@ -76,7 +76,7 @@ export const Header = () => {
 
   return (
     <>
-      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-18">
+      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-12">
         {/* Space for logo */}
         <div className="navbar-start w-auto lg:w-1/2">
           <div className="hidden lg:flex items-center ml-12">
@@ -88,20 +88,17 @@ export const Header = () => {
             <div className="relative group flex items-center">
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="group flex items-center justify-center bg-skyblue-400 hover:bg-skyblue-500 text-white border-none shadow-md ml-4 rounded-full h-12 min-w-[3rem] w-auto transition-all duration-300 overflow-hidden relative px-0 group-hover:px-2"
+                className="group flex items-center justify-center bg-skyblue-400 hover:bg-skyblue-500 text-white border-none shadow-md ml-4 rounded-full h-12 min-w-[3rem] w-auto transition-all duration-500 ease-out overflow-hidden relative px-3 group-hover:px-4"
               >
-                <PlusIcon className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
-                <span
-                  className="opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-hover:ml-2 transition-all duration-300 whitespace-nowrap"
-                  style={{ minWidth: 0 }}
-                >
+                <PlusIcon className="h-5 w-5 transition-transform duration-500 ease-out group-hover:rotate-90" />
+                <span className="opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[200px] group-hover:ml-2 transition-all duration-500 ease-out whitespace-nowrap overflow-hidden">
                   Request Insurance
                 </span>
               </button>
             </div>
           </div>
         </div>
-        <div className="navbar-end grow mr-12 pr-18">
+        <div className="navbar-end grow mr-12 pr-12">
           <RainbowKitCustomConnectButton />
           {isLocalNetwork && <FaucetButton />}
         </div>
