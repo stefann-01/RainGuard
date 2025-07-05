@@ -15,6 +15,7 @@ struct WeatherCondition {
 }
 
 struct Offer {
+    uint256 id;
     address expert;
     uint256 premium;
     uint256 timestamp;
@@ -38,7 +39,7 @@ struct InsuranceRequest {
     uint256 end; // unix timestamp
     uint8 status; // 0: pending, 1: funding, 2: premium, 3: active, 4: expired, 5: cancelled
     Offer[] offers;
-    uint256 selectedOffer; // offer index
+    Offer selectedOffer; // full selected offer object
     Investment[] investments;
     uint256 totalFunded;
     bool payout; // true if payout was made
@@ -74,7 +75,10 @@ interface IInsuranceManager {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        uint256 selectedOffer
+        uint256 selectedOfferId,
+        address selectedExpert,
+        uint256 selectedPremium,
+        string memory selectedDescription
     );
     function getOffers(uint256 requestId) external view returns (Offer[] memory);
     function getInvestments(uint256 requestId) external view returns (Investment[] memory);
