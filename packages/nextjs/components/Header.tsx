@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import CreateRequestModal from "./CreateRequestModal";
 import { hardhat } from "viem/chains";
-import { BugAntIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -40,8 +41,8 @@ export const HeaderMenuLinks = () => {
               href={href}
               passHref
               className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+                isActive ? "bg-skyblue-100 font-bold text-skyblue-800" : "bg-transparent text-skyblue-700"
+              } rounded-full px-5 py-2 text-sm grid grid-flow-col gap-2 shadow-none hover:bg-skyblue-50 transition`}
             >
               {icon}
               <span>{label}</span>
@@ -59,6 +60,7 @@ export const HeaderMenuLinks = () => {
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   useOutsideClick(burgerMenuRef, () => {
@@ -66,17 +68,39 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
-      {/* Space for logo */}
-      <div className="navbar-start w-auto lg:w-1/2">
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
+    <>
+      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50">
+        {/* Space for logo */}
+        <div className="navbar-start w-auto lg:w-1/2">
+          <div className="hidden lg:flex items-center ml-12">
+            <div className="bg-beige-50 rounded-full shadow-md flex gap-2">
+              <ul className="menu menu-horizontal gap-2">
+                <HeaderMenuLinks />
+              </ul>
+            </div>
+            <div className="relative group flex items-center">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="group flex items-center justify-center bg-skyblue-400 hover:bg-skyblue-500 text-white border-none shadow-md ml-4 rounded-full h-12 min-w-[3rem] w-auto transition-all duration-300 overflow-hidden relative px-0 group-hover:px-2"
+              >
+                <PlusIcon className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
+                <span
+                  className="opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto group-hover:ml-2 transition-all duration-300 whitespace-nowrap"
+                  style={{ minWidth: 0 }}
+                >
+                  Request Insurance
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="navbar-end grow mr-12">
+          <RainbowKitCustomConnectButton />
+          {isLocalNetwork && <FaucetButton />}
+        </div>
       </div>
-      <div className="navbar-end grow mr-4">
-        <RainbowKitCustomConnectButton />
-        {isLocalNetwork && <FaucetButton />}
-      </div>
-    </div>
+
+      <CreateRequestModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
+    </>
   );
 };

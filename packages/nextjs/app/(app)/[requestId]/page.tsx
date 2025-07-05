@@ -1,0 +1,358 @@
+"use client";
+
+import { use, useMemo, useState } from "react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import {
+  formatTimeRange,
+  formatTimestamp,
+  getOperatorName,
+  getWeatherTypeIcon,
+  getWeatherTypeName,
+} from "../../utils/format.utils";
+import StatusBadge from "../_components/StatusBadge";
+import { mockData } from "../mockdata";
+import { useAccount } from "wagmi";
+import { DEFAULT_SENSOR_STATUS, SensorStatus, WeatherType } from "~~/app/types";
+import { Address, EtherInput } from "~~/components/scaffold-eth";
+
+interface RequestDetailsPageProps {
+  params: Promise<{
+    requestId: string;
+  }>;
+}
+
+// Helper function to convert numeric status to string
+const getStatusString = (numericStatus: number): SensorStatus => {
+  switch (numericStatus) {
+    case 0:
+      return "Pending";
+    case 1:
+      return "Funding";
+    case 2:
+      return "Active";
+    case 3:
+      return "Expired";
+    case 4:
+      return "Cancelled";
+    default:
+      return DEFAULT_SENSOR_STATUS;
+  }
+};
+
+export default function RequestDetailsPage({ params }: RequestDetailsPageProps) {
+  const { requestId } = use(params);
+  const requestIdNumber = parseInt(requestId);
+  const { address: connectedAddress } = useAccount();
+  const [fundAmount, setFundAmount] = useState("");
+
+  const request = useMemo(() => {
+    return mockData.find(r => r.id === requestIdNumber);
+  }, [requestIdNumber]);
+
+  if (!request) {
+    notFound();
+  }
+
+  const formattedTime = formatTimeRange(request.start, request.end);
+  const currentDate = new Date();
+  const isPast = request.start < currentDate;
+  const isEnded = request.end < currentDate;
+  const statusString = getStatusString(request.status);
+  const fundingProgress = Math.round((request.pool.totalFunded / request.pool.fundingGoal) * 100);
+
+  // Check if the connected user is the requester
+  const isRequester = connectedAddress && connectedAddress.toLowerCase() === request.user.toLowerCase();
+
+  // Check if user is connected
+  const isConnected = !!connectedAddress;
+
+  // Calculate remaining funding needed
+  const remainingFunding = request.pool.fundingGoal - request.pool.totalFunded;
+
+  return (
+    <div className="min-h-screen py-8">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-6">
+          <Link href="/">
+            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm h-10 rounded-lg shadow-md font-semibold">
+              ← Back to Dashboard
+            </button>
+          </Link>
+          <StatusBadge
+            status={isEnded ? "Expired" : statusString}
+            className="h-10 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-4"
+          />
+        </div>
+
+        <div className="bg-gradient-to-r from-beige-50 to-skyblue-50 rounded-3xl p-8 border border-beige-200 shadow-xl">
+          <h1 className="text-5xl font-bold text-beige-900 mb-4">{request.title}</h1>
+          <p className="text-xl text-beige-700 mb-6">{request.description || "No description available"}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-skyblue-600">${request.amount.toLocaleString()}</div>
+              <div className="text-beige-600">Coverage Amount</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">{request.conditions.length}</div>
+              <div className="text-beige-600">Weather Conditions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-skyblue-600">{request.offers.length}</div>
+              <div className="text-beige-600">Expert Offers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Request Details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Requester Information */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">👤</span>
+                Requester Information
+              </h2>
+              <div className="bg-white rounded-xl p-4 border border-beige-300">
+                <Address address={request.user} format="long" />
+              </div>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">📍</span>
+                Location
+              </h2>
+              <div className="bg-white rounded-xl p-4 border border-beige-300">
+                <p className="text-lg text-beige-800 font-medium">{request.location}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Schedule */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">📅</span>
+                Coverage Schedule
+              </h2>
+              <div className="bg-white rounded-xl p-4 border border-beige-300 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-orange-600">{isPast ? "Started:" : "Starting:"}</span>
+                  <span className="text-beige-800 font-medium">{formattedTime.startDate}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-orange-600">Duration:</span>
+                  <span className="text-beige-800 font-medium">{formattedTime.lastingPeriod}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-orange-600">Ends:</span>
+                  <span className="text-beige-800 font-medium">{formattedTime.endDate}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Weather Conditions */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">🌦️</span>
+                Weather Conditions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {request.conditions.map((condition, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl p-4 border border-beige-300 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">{getWeatherTypeIcon(condition.weatherType)}</span>
+                      <h3 className="font-bold text-beige-900">{getWeatherTypeName(condition.weatherType)}</h3>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-orange-600 font-semibold">Trigger:</span>
+                        <span className="text-beige-800">
+                          {getOperatorName(condition.op)} {condition.aggregateValue}
+                          {condition.weatherType === WeatherType.Rain && " mm"}
+                          {condition.weatherType === WeatherType.Wind && " hours"}
+                          {condition.weatherType === WeatherType.Hail && " hours"}
+                        </span>
+                      </div>
+                      {condition.subThreshold > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-600 font-semibold">Sub-condition:</span>
+                          <span className="text-beige-800">
+                            {getOperatorName(condition.subOp)} {condition.subThreshold}
+                            {condition.weatherType === WeatherType.Wind && " km/h"}
+                            {condition.weatherType === WeatherType.Hail && " mm"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Pool & Offers */}
+        <div className="space-y-6">
+          {/* Funding Pool - Highlighted */}
+          <div className="card bg-gradient-to-br from-skyblue-50 to-beige-50 border-2 border-skyblue-200 shadow-2xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">💰</span>
+                Funding Pool
+              </h2>
+
+              <div className="bg-white rounded-xl p-4 border border-skyblue-300 space-y-4">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-skyblue-600 mb-2">{fundingProgress}%</div>
+                  <div className="w-full bg-beige-200 rounded-full h-3 mb-3">
+                    <div
+                      className="bg-gradient-to-r from-skyblue-400 to-skyblue-600 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(fundingProgress, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-beige-900">
+                      ${request.pool.totalFunded.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-beige-600">Funded</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-beige-900">
+                      ${request.pool.fundingGoal.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-beige-600">Goal</div>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div
+                    className={`badge ${request.pool.active ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
+                  >
+                    {request.pool.active ? "🟢 Active" : "⚪ Inactive"}
+                  </div>
+                </div>
+
+                {/* Fund Pool Section */}
+                <div className="mt-6 pt-6 border-t border-skyblue-200">
+                  <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Fund This Pool</h3>
+
+                  {!isConnected ? (
+                    <div className="text-center">
+                      <p className="text-beige-600 mb-3">Connect your wallet to fund this pool</p>
+                      <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
+                        Connect Wallet
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-beige-700 mb-2 block">
+                          Amount to contribute (ETH)
+                        </label>
+                        <EtherInput value={fundAmount} onChange={setFundAmount} placeholder="0.0" />
+                      </div>
+
+                      <div className="text-center text-sm text-beige-600">
+                        <p>
+                          Remaining: {remainingFunding > 0 ? `$${remainingFunding.toLocaleString()}` : "Fully funded!"}
+                        </p>
+                      </div>
+
+                      <button
+                        className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
+                          fundAmount && parseFloat(fundAmount) > 0 && remainingFunding > 0
+                            ? "bg-orange-400 hover:bg-orange-500 text-white"
+                            : "bg-beige-300 text-beige-600 cursor-not-allowed"
+                        }`}
+                        disabled={!fundAmount || parseFloat(fundAmount) <= 0 || remainingFunding <= 0}
+                      >
+                        {remainingFunding <= 0
+                          ? "Pool Fully Funded"
+                          : fundAmount && parseFloat(fundAmount) > 0
+                            ? "Fund Pool"
+                            : "Enter Amount"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Expert Offers */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                <span className="text-skyblue-600">👨‍💼</span>
+                Expert Offers ({request.offers.length})
+              </h2>
+
+              <div className="space-y-4">
+                {request.offers.map((offer, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-beige-900 mb-2">Expert #{index + 1}</h3>
+                        <div className="bg-beige-100 rounded-lg p-2">
+                          <Address address={offer.expert} />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-skyblue-600">${offer.premium}</div>
+                        <div className="text-sm text-beige-600">Premium</div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
+                    </div>
+
+                    <button
+                      className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
+                        isRequester
+                          ? "bg-skyblue-400 hover:bg-skyblue-500 text-white"
+                          : "bg-beige-300 text-beige-600 cursor-not-allowed"
+                      }`}
+                      disabled={!isRequester}
+                    >
+                      {isRequester ? "Accept Offer" : "Only Requester Can Accept"}
+                    </button>
+                  </div>
+                ))}
+
+                {request.offers.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">🤝</div>
+                    <p className="text-beige-700">No offers yet.</p>
+                    <p className="text-sm text-beige-600 mt-2">Experts can submit offers to provide coverage.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
