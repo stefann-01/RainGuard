@@ -62,7 +62,7 @@ interface IInsuranceManager {
     function withdrawInvestment(uint256 requestId) external;
     function updateReputation(address expert, int256 scoreChange) external;
 
-    function getRequest(uint256 requestId) external view returns (
+    function getRequestBasic(uint256 requestId) external view returns (
         uint256 id,
         string memory title,
         string memory description,
@@ -74,28 +74,9 @@ interface IInsuranceManager {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        WeatherCondition[] memory conditions,
-        Offer[] memory offers,
-        uint256 selectedOffer,
-        Investment[] memory investments
+        uint256 selectedOffer
     );
-    function getOffersLength(uint256 requestId) external view returns (uint256);
-    function getOffer(uint256 requestId, uint256 offerIndex) external view returns (
-        address expert,
-        uint256 premium,
-        uint256 timestamp
-    );
-    function getInvestmentsLength(uint256 requestId) external view returns (uint256);
-    function getInvestment(uint256 requestId, uint256 investmentIndex) external view returns (
-        address investor,
-        uint256 amount
-    );
-    function getConditionsLength(uint256 requestId) external view returns (uint256);
-    function getCondition(uint256 requestId, uint256 conditionIndex) external view returns (
-        WeatherType weatherType,
-        Operator op,
-        uint256 aggregateValue,
-        uint256 subThreshold,
-        Operator subOp
-    );
+    function getOffers(uint256 requestId) external view returns (Offer[] memory);
+    function getInvestments(uint256 requestId) external view returns (Investment[] memory);
+    function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory);
 } 

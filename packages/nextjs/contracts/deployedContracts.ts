@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     InsuranceManager: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       abi: [
         {
           inputs: [
@@ -319,6 +319,193 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "getConditions",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "enum WeatherType",
+                  name: "weatherType",
+                  type: "uint8",
+                },
+                {
+                  internalType: "enum Operator",
+                  name: "op",
+                  type: "uint8",
+                },
+                {
+                  internalType: "uint256",
+                  name: "aggregateValue",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "subThreshold",
+                  type: "uint256",
+                },
+                {
+                  internalType: "enum Operator",
+                  name: "subOp",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct WeatherCondition[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "getInvestments",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "investor",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct Investment[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "getOffers",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct Offer[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "getRequestBasic",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "title",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "description",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "location",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "start",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "end",
+              type: "uint256",
+            },
+            {
+              internalType: "uint8",
+              name: "status",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "totalFunded",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "payout",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "selectedOffer",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "owner",
           outputs: [
@@ -558,6 +745,10 @@ const deployedContracts = {
       inheritedFunctions: {
         createRequest: "contracts/IInsuranceManager.sol",
         fundPool: "contracts/IInsuranceManager.sol",
+        getConditions: "contracts/IInsuranceManager.sol",
+        getInvestments: "contracts/IInsuranceManager.sol",
+        getOffers: "contracts/IInsuranceManager.sol",
+        getRequestBasic: "contracts/IInsuranceManager.sol",
         payPremium: "contracts/IInsuranceManager.sol",
         selectOffer: "contracts/IInsuranceManager.sol",
         settlePolicy: "contracts/IInsuranceManager.sol",
