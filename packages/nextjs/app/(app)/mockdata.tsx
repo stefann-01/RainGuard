@@ -1,9 +1,12 @@
+import { SensorStatus } from "~~/app/types";
+
 export interface MockDataItem {
   id: number;
   title: string;
   description: string;
   startDate: Date;
   endDate: Date;
+  status: SensorStatus;
 }
 
 export const mockData: MockDataItem[] = [
@@ -14,6 +17,7 @@ export const mockData: MockDataItem[] = [
     description: "Downtown Area - Main monitoring station for urban rainfall patterns",
     startDate: new Date("2024-01-15T08:00:00"),
     endDate: new Date("2024-01-15T16:30:00"),
+    status: "Active",
   },
   {
     id: 2,
@@ -21,6 +25,7 @@ export const mockData: MockDataItem[] = [
     description: "Suburban District - Residential area rainfall monitoring",
     startDate: new Date("2024-01-14T10:15:00"),
     endDate: new Date("2024-01-14T18:45:00"),
+    status: "Expired",
   },
   {
     id: 3,
@@ -28,6 +33,7 @@ export const mockData: MockDataItem[] = [
     description: "Industrial Zone - Heavy rainfall monitoring for safety protocols",
     startDate: new Date("2024-01-13T06:30:00"),
     endDate: new Date("2024-01-13T14:20:00"),
+    status: "Active",
   },
   {
     id: 4,
@@ -35,6 +41,7 @@ export const mockData: MockDataItem[] = [
     description: "Park Area - Environmental monitoring for green spaces",
     startDate: new Date("2024-01-12T09:00:00"),
     endDate: new Date("2024-01-12T17:15:00"),
+    status: "Cancelled",
   },
   {
     id: 5,
@@ -42,6 +49,7 @@ export const mockData: MockDataItem[] = [
     description: "Residential Block - Community rainfall data collection",
     startDate: new Date("2024-01-11T07:45:00"),
     endDate: new Date("2024-01-11T15:30:00"),
+    status: "Active",
   },
   {
     id: 6,
@@ -49,6 +57,7 @@ export const mockData: MockDataItem[] = [
     description: "Shopping District - Commercial area weather monitoring",
     startDate: new Date("2024-01-10T11:20:00"),
     endDate: new Date("2024-01-10T19:00:00"),
+    status: "Expired",
   },
   {
     id: 7,
@@ -56,6 +65,7 @@ export const mockData: MockDataItem[] = [
     description: "Highway Exit - Traffic safety rainfall monitoring",
     startDate: new Date("2024-01-09T05:30:00"),
     endDate: new Date("2024-01-09T13:45:00"),
+    status: "Active",
   },
   {
     id: 8,
@@ -63,6 +73,7 @@ export const mockData: MockDataItem[] = [
     description: "University Campus - Academic research rainfall data",
     startDate: new Date("2024-01-08T08:15:00"),
     endDate: new Date("2024-01-08T16:00:00"),
+    status: "Cancelled",
   },
   {
     id: 9,
@@ -70,6 +81,7 @@ export const mockData: MockDataItem[] = [
     description: "Hospital Area - Medical facility weather monitoring",
     startDate: new Date("2024-01-07T12:00:00"),
     endDate: new Date("2024-01-07T20:30:00"),
+    status: "Active",
   },
   {
     id: 10,
@@ -77,6 +89,7 @@ export const mockData: MockDataItem[] = [
     description: "Airport Vicinity - Aviation weather monitoring",
     startDate: new Date("2024-01-06T04:45:00"),
     endDate: new Date("2024-01-06T12:15:00"),
+    status: "Expired",
   },
   // Future sensors (upcoming months in 2025)
   {
@@ -85,6 +98,7 @@ export const mockData: MockDataItem[] = [
     description: "Future Downtown Extension - Enhanced urban monitoring system",
     startDate: new Date("2025-06-15T09:00:00"),
     endDate: new Date("2025-06-15T17:30:00"),
+    status: "Pending",
   },
   {
     id: 12,
@@ -92,6 +106,7 @@ export const mockData: MockDataItem[] = [
     description: "New Suburban Hub - Advanced residential monitoring",
     startDate: new Date("2025-06-20T11:30:00"),
     endDate: new Date("2025-06-20T19:45:00"),
+    status: "Funding",
   },
   {
     id: 13,
@@ -99,6 +114,7 @@ export const mockData: MockDataItem[] = [
     description: "Industrial Complex Alpha - Safety monitoring upgrade",
     startDate: new Date("2025-07-05T07:15:00"),
     endDate: new Date("2025-07-05T15:20:00"),
+    status: "Pending",
   },
   {
     id: 14,
@@ -106,6 +122,7 @@ export const mockData: MockDataItem[] = [
     description: "Central Park Monitoring - Environmental research station",
     startDate: new Date("2025-07-12T08:45:00"),
     endDate: new Date("2025-07-12T16:15:00"),
+    status: "Funding",
   },
   {
     id: 15,
@@ -113,6 +130,7 @@ export const mockData: MockDataItem[] = [
     description: "Residential Tower Block - High-rise weather monitoring",
     startDate: new Date("2025-07-18T10:00:00"),
     endDate: new Date("2025-07-18T18:30:00"),
+    status: "Pending",
   },
   {
     id: 16,
@@ -120,6 +138,7 @@ export const mockData: MockDataItem[] = [
     description: "Mall District - Commercial weather monitoring system",
     startDate: new Date("2025-08-01T12:20:00"),
     endDate: new Date("2025-08-01T20:00:00"),
+    status: "Funding",
   },
   {
     id: 17,
@@ -127,6 +146,7 @@ export const mockData: MockDataItem[] = [
     description: "Highway Junction - Traffic safety monitoring upgrade",
     startDate: new Date("2025-08-08T06:30:00"),
     endDate: new Date("2025-08-08T14:45:00"),
+    status: "Pending",
   },
   {
     id: 18,
@@ -134,6 +154,7 @@ export const mockData: MockDataItem[] = [
     description: "University Research Lab - Academic weather station",
     startDate: new Date("2025-08-15T09:15:00"),
     endDate: new Date("2025-08-15T17:00:00"),
+    status: "Funding",
   },
   {
     id: 19,
@@ -141,6 +162,7 @@ export const mockData: MockDataItem[] = [
     description: "Medical Center - Healthcare facility weather monitoring",
     startDate: new Date("2025-08-22T13:00:00"),
     endDate: new Date("2025-08-22T21:30:00"),
+    status: "Pending",
   },
   {
     id: 20,
@@ -148,6 +170,7 @@ export const mockData: MockDataItem[] = [
     description: "Airport Terminal - Aviation weather monitoring system",
     startDate: new Date("2025-09-01T05:45:00"),
     endDate: new Date("2025-09-01T13:15:00"),
+    status: "Funding",
   },
   {
     id: 21,
@@ -155,6 +178,7 @@ export const mockData: MockDataItem[] = [
     description: "Sports Complex - Athletic facility weather monitoring",
     startDate: new Date("2025-09-08T14:30:00"),
     endDate: new Date("2025-09-08T22:00:00"),
+    status: "Pending",
   },
   {
     id: 22,
@@ -162,6 +186,7 @@ export const mockData: MockDataItem[] = [
     description: "Tech Campus - Innovation district weather monitoring",
     startDate: new Date("2025-09-15T08:00:00"),
     endDate: new Date("2025-09-15T16:30:00"),
+    status: "Funding",
   },
   {
     id: 23,
@@ -169,6 +194,7 @@ export const mockData: MockDataItem[] = [
     description: "Harbor Area - Maritime weather monitoring station",
     startDate: new Date("2025-09-22T11:45:00"),
     endDate: new Date("2025-09-22T19:15:00"),
+    status: "Pending",
   },
   {
     id: 24,
@@ -176,6 +202,7 @@ export const mockData: MockDataItem[] = [
     description: "Mountain View - Elevated weather monitoring system",
     startDate: new Date("2025-10-01T07:20:00"),
     endDate: new Date("2025-10-01T15:50:00"),
+    status: "Funding",
   },
   {
     id: 25,
@@ -183,5 +210,6 @@ export const mockData: MockDataItem[] = [
     description: "Riverside Park - Waterfront weather monitoring",
     startDate: new Date("2025-10-08T10:10:00"),
     endDate: new Date("2025-10-08T18:40:00"),
+    status: "Pending",
   },
 ];

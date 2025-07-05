@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { formatTimeRange } from "../utils/format.utils";
 import SearchBar from "./_components/SearchBar";
+import StatusBadge from "./_components/StatusBadge";
 import { mockData } from "./mockdata";
+import { DEFAULT_SENSOR_STATUS } from "~~/app/types";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,13 +95,6 @@ export default function HomePage() {
                 key={sensor.id}
                 className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative"
               >
-                {/* Ended Badge */}
-                {isEnded && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <span className="badge badge-error">Ended</span>
-                  </div>
-                )}
-
                 <div className="card-body p-6">
                   <h2 className="card-title text-lg mb-2">{sensor.title}</h2>
                   <p className="text-sm text-base-content/70 mb-4">{sensor.description}</p>
@@ -116,6 +111,10 @@ export default function HomePage() {
 
                   <div className="card-actions justify-end">
                     <button className="btn btn-primary btn-sm">View Details</button>
+                  </div>
+                  {/* Status Badge in bottom left */}
+                  <div className="absolute left-6 bottom-6">
+                    <StatusBadge status={isEnded ? "Expired" : sensor.status || DEFAULT_SENSOR_STATUS} />
                   </div>
                 </div>
               </div>
