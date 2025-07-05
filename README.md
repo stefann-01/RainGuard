@@ -1,2 +1,2 @@
 # RainGuard
-On-chain weather insurance protocol.
+On-chain weather insurance protocol. 💦
