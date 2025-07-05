@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     InsuranceManager: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       abi: [
         {
           inputs: [
@@ -383,6 +383,11 @@ const deployedContracts = {
             {
               components: [
                 {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
                   internalType: "address",
                   name: "expert",
                   type: "address",
@@ -478,7 +483,7 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "selectedOffer",
+              name: "selectedOfferId",
               type: "uint256",
             },
           ],
@@ -624,9 +629,36 @@ const deployedContracts = {
               type: "uint8",
             },
             {
-              internalType: "uint256",
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+              ],
+              internalType: "struct Offer",
               name: "selectedOffer",
-              type: "uint256",
+              type: "tuple",
             },
             {
               internalType: "uint256",
@@ -1186,7 +1218,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Reputation: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       abi: [
         {
           anonymous: false,

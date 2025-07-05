@@ -75,10 +75,7 @@ interface IInsuranceManager {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        uint256 selectedOfferId,
-        address selectedExpert,
-        uint256 selectedPremium,
-        string memory selectedDescription
+        uint256 selectedOfferId
     );
     function getOffers(uint256 requestId) external view returns (Offer[] memory);
     function getInvestments(uint256 requestId) external view returns (Investment[] memory);

@@ -126,8 +126,8 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         require(req.user == msg.sender, "Only request creator can pay premium");
         require(req.status == 2, "Not in premium payment phase");
         require(req.offers.length > 0, "No offer selected");
-        require(req.selectedOffer < req.offers.length, "Invalid selected offer");
-        uint256 premium = req.offers[req.selectedOffer].premium;
+        require(req.selectedOffer.expert != address(0), "Invalid selected offer");
+        uint256 premium = req.selectedOffer.premium;
         require(amount == premium, "Incorrect premium amount");
         // Transfer USDC from sender to contract
         require(IERC20(usdc).transferFrom(msg.sender, address(this), amount), "USDC transfer failed");
@@ -136,7 +136,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         require(totalFunded >= req.amount, "Pool not fully funded");
         // Calculate expert share (5%)
         uint256 expertShare = (premium * 5) / 100;
-        address expert = req.offers[req.selectedOffer].expert;
+        address expert = req.selectedOffer.expert;
         require(IERC20(usdc).transfer(expert, expertShare), "Expert payment failed");
         // Distribute remaining premium (95%) to investors
         uint256 remainingPremium = premium - expertShare;
@@ -170,7 +170,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         emit EventsLib.PolicySettled(requestId, conditionMet);
         
         // Update expert reputation
-        address expert = req.offers[req.selectedOffer].expert;
+        address expert = req.selectedOffer.expert;
         if (conditionMet) {
             reputation.updateReputation(expert, -10); // Penalize expert for mispricing
         } else {
@@ -215,10 +215,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        uint256 selectedOfferId,
-        address selectedExpert,
-        uint256 selectedPremium,
-        string memory selectedDescription
+        uint256 selectedOfferId
     ) {
         InsuranceRequest storage req = requests[requestId];
         return (
