@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { getWeatherTypeIcon } from "../app/utils/format.utils";
 import { useAccount } from "wagmi";
-import { InsuranceRequest, Operator, WeatherType } from "~~/app/types";
+import { Operator, WeatherType } from "~~/app/types";
 import { Address } from "~~/components/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 interface CreateRequestModalProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ interface WeatherConditionForm {
 
 export default function CreateRequestModal({ isOpen, onClose }: CreateRequestModalProps) {
   const { address: connectedAddress } = useAccount();
+  const { writeContractAsync: writeInsuranceManagerAsync, isPending } = useScaffoldWriteContract({
+    contractName: "InsuranceManager",
+  });
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -72,7 +76,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isConnected) {
@@ -90,31 +94,35 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     const startDateTime = new Date(`${formData.startDate}T${formData.startTime || "00:00"}`);
     const endDateTime = new Date(`${formData.endDate}T${formData.endTime || "23:59"}`);
 
-    const newRequest: Omit<InsuranceRequest, "id" | "status" | "offers" | "timestamp"> = {
-      title: formData.title,
-      description: formData.description || undefined,
-      user: connectedAddress!,
-      amount: parseFloat(formData.amount),
-      conditions: conditions.map(condition => ({
-        weatherType: condition.weatherType,
-        op: condition.op,
-        aggregateValue: condition.aggregateValue,
-        subThreshold: condition.subThreshold,
-        subOp: condition.subOp,
-      })),
-      location: formData.location,
-      start: startDateTime,
-      end: endDateTime,
-      selectedOffer: 0,
-      investments: [],
-      totalFunded: 0,
-      payout: false,
-    };
+    // Convert conditions to contract format
+    const contractConditions = conditions.map(condition => ({
+      weatherType: condition.weatherType,
+      op: condition.op,
+      aggregateValue: BigInt(condition.aggregateValue),
+      subThreshold: BigInt(condition.subThreshold),
+      subOp: condition.subOp,
+    }));
 
-    console.log("New request:", newRequest);
-    // TODO: Add to mock data or send to contract
-    alert("Request created successfully!");
-    onClose();
+    try {
+      await writeInsuranceManagerAsync({
+        functionName: "createRequest",
+        args: [
+          formData.title,
+          formData.description || "",
+          BigInt(parseFloat(formData.amount) * 10 ** 6), // Convert to USDC decimals (6)
+          contractConditions,
+          formData.location,
+          BigInt(Math.floor(startDateTime.getTime() / 1000)), // Convert to Unix timestamp
+          BigInt(Math.floor(endDateTime.getTime() / 1000)), // Convert to Unix timestamp
+        ],
+      });
+
+      alert("Request created successfully!");
+      onClose();
+    } catch (error) {
+      console.error("Error creating request:", error);
+      alert("Failed to create request. Please try again.");
+    }
   };
 
   if (!isOpen) return null;
@@ -130,6 +138,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
             </h3>
             <button
               onClick={onClose}
+              disabled={isPending}
               className="btn btn-circle btn-sm bg-beige-200 hover:bg-beige-300 text-beige-700 border-none"
             >
               ✕
@@ -352,15 +361,17 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
                 <button
                   type="button"
                   onClick={onClose}
+                  disabled={isPending}
                   className="btn bg-beige-200 hover:bg-beige-300 text-beige-800 border-none rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
+                  disabled={isPending}
                   className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none rounded-lg shadow-md font-semibold"
                 >
-                  Create Request
+                  {isPending ? "Creating..." : "Create Request"}
                 </button>
               </div>
             </form>
