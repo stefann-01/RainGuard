@@ -21,6 +21,7 @@ import {
   WeatherCondition,
   WeatherType,
 } from "~~/app/types";
+import { OfferModal } from "~~/components/OfferModal";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
@@ -54,6 +55,8 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
   const { address: connectedAddress } = useAccount();
   const [fundAmount, setFundAmount] = useState("");
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [visibleOffers, setVisibleOffers] = useState(2);
 
   // Fetch basic request data
   const { data: basicData, isLoading: basicLoading } = useScaffoldReadContract({
@@ -106,6 +109,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
     expert: offer.expert,
     premium: Number(offer.premium),
+    description: offer.description || "", // Add description with fallback
     timestamp: new Date(Number(offer.timestamp) * 1000),
   }));
 
@@ -296,6 +300,85 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
         {/* Right Column - Pool & Offers */}
         <div className="space-y-6">
+          {/* Expert Offers */}
+          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+            <div className="card-body">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
+                  <span className="text-skyblue-600">👨‍💼</span>
+                  Expert Offers ({request.offers.length})
+                </h2>
+                <button
+                  className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
+                  onClick={() => setIsOfferModalOpen(true)}
+                >
+                  Provide Offer
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {request.offers.slice(0, visibleOffers).map((offer, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-beige-900 mb-2">Expert #{index + 1}</h3>
+                        <div className="bg-beige-100 rounded-lg p-2">
+                          <Address address={offer.expert} />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
+                        <div className="text-sm text-beige-600">Premium</div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
+                    </div>
+
+                    <button
+                      className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
+                        isRequester
+                          ? "bg-skyblue-400 hover:bg-skyblue-500 text-white"
+                          : "bg-beige-300 text-beige-600 cursor-not-allowed"
+                      }`}
+                      disabled={!isRequester}
+                    >
+                      {isRequester ? "Accept Offer" : "Only Requester Can Accept"}
+                    </button>
+                  </div>
+                ))}
+
+                <div className="text-center pt-2 flex justify-center gap-2">
+                  {request.offers.length > visibleOffers && (
+                    <button
+                      className="btn btn-ghost btn-sm text-skyblue-600"
+                      onClick={() => setVisibleOffers(prev => prev + 2)}
+                    >
+                      Show More Offers ({request.offers.length - visibleOffers} remaining)
+                    </button>
+                  )}
+                  {visibleOffers > 2 && (
+                    <button className="btn btn-ghost btn-sm text-orange-400" onClick={() => setVisibleOffers(2)}>
+                      Show Less
+                    </button>
+                  )}
+                </div>
+
+                {request.offers.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">🤝</div>
+                    <p className="text-beige-700">No offers yet.</p>
+                    <p className="text-sm text-beige-600 mt-2">Experts can submit offers to provide coverage.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Funding Pool - Highlighted */}
           <div className="card bg-gradient-to-br from-skyblue-50 to-beige-50 border-2 border-skyblue-200 shadow-2xl rounded-2xl">
             <div className="card-body">
@@ -380,71 +463,11 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
               </div>
             </div>
           </div>
-
-          {/* Expert Offers */}
-          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
-            <div className="card-body">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
-                  <span className="text-skyblue-600">👨‍💼</span>
-                  Expert Offers ({request.offers.length})
-                </h2>
-                <button
-                  className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
-                  onClick={() => {}}
-                >
-                  Provide Offer
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {request.offers.map((offer, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-bold text-beige-900 mb-2">Expert #{index + 1}</h3>
-                        <div className="bg-beige-100 rounded-lg p-2">
-                          <Address address={offer.expert} />
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
-                        <div className="text-sm text-beige-600">Premium</div>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
-                    </div>
-
-                    <button
-                      className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
-                        isRequester
-                          ? "bg-skyblue-400 hover:bg-skyblue-500 text-white"
-                          : "bg-beige-300 text-beige-600 cursor-not-allowed"
-                      }`}
-                      disabled={!isRequester}
-                    >
-                      {isRequester ? "Accept Offer" : "Only Requester Can Accept"}
-                    </button>
-                  </div>
-                ))}
-
-                {request.offers.length === 0 && (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">🤝</div>
-                    <p className="text-beige-700">No offers yet.</p>
-                    <p className="text-sm text-beige-600 mt-2">Experts can submit offers to provide coverage.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Add the OfferModal */}
+      <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
     </div>
   );
 }

@@ -57,6 +57,7 @@ export interface InsuranceRequest {
 export interface Offer {
   expert: string;
   premium: number;
+  description: string; // Description of the offer terms and conditions
   timestamp: Date; // Changed back to Date for frontend convenience
 }
 
