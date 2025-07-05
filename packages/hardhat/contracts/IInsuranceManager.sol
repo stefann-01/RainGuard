@@ -98,7 +98,4 @@ interface IInsuranceManager {
         uint256 subThreshold,
         Operator subOp
     );
-    function getOffers(uint256 requestId) external view returns (Offer[] memory);
-    function getInvestments(uint256 requestId) external view returns (Investment[] memory);
-    function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory);
 } 
