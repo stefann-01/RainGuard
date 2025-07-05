@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+// Top-level type definitions for use across contracts
+
+enum WeatherType { Rain, Wind, Tornado, Flood, Hail }
+enum Operator { LessThan, GreaterThan, Equal }
+
+struct WeatherCondition {
+    WeatherType weatherType; // e.g., Wind
+    Operator op;             // e.g., GreaterThan (for the count or threshold)
+    uint256 aggregateValue;  // e.g., 100 (hours) or threshold value for simple cases
+    uint256 subThreshold;    // e.g., 50 (km/h), ignored for simple cases
+    Operator subOp;          // e.g., GreaterThan (for wind speed), ignored for simple cases
+}
+
+struct Offer {
+    address expert;
+    uint256 premium;
+    uint256 timestamp;
+}
+
+struct Investment {
+    address investor;
+    uint256 amount;
+}
+
+struct InsuranceRequest {
+    uint256 id;
+    string title;
+    string description;
+    address user;
+    uint256 amount;
+    WeatherCondition[] conditions;
+    string location;
+    uint256 start;
+    uint256 end;
+    uint8 status; // 0: pending, 1: funding, 2: premium, 3: active, 4: expired, 5: cancelled
+    Offer[] offers;
+    uint256 selectedOffer; // offer index
+    Investment[] investments;
+    uint256 totalFunded;
+    bool payout; // true if payout was made
+}
+
+interface IInsuranceManager {
+    function createRequest(
+        string memory title,
+        string memory description,
+        uint256 amount,
+        WeatherCondition[] memory conditions,
+        string memory location,
+        uint256 start,
+        uint256 end
+    ) external;
+
+    function submitOffer(uint256 requestId, uint256 premium) external;
+    function selectOffer(uint256 requestId, uint256 offerId) external;
+    function fundPool(uint256 requestId) external payable;
+    function payPremium(uint256 requestId) external payable;
+    function settlePolicy(uint256 requestId, bool conditionMet) external;
+    function withdrawInvestment(uint256 requestId) external;
+    function updateReputation(address expert, int256 scoreChange) external;
+} 
