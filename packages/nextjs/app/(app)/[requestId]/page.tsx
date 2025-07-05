@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useMemo, useState } from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   formatTimeRange,
@@ -12,6 +11,7 @@ import {
 } from "../../utils/format.utils";
 import StatusBadge from "../_components/StatusBadge";
 import { mockData } from "../mockdata";
+import { ChevronLeft } from "lucide-react";
 import { useAccount } from "wagmi";
 import { DEFAULT_SENSOR_STATUS, SensorStatus, WeatherType } from "~~/app/types";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
@@ -75,14 +75,16 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/">
-            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm h-10 rounded-lg shadow-md font-semibold">
-              ← Back to Dashboard
-            </button>
-          </Link>
+          <button
+            className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-md h-12 rounded-lg shadow-md font-semibold px-6 flex items-center gap-2"
+            onClick={() => (window.location.href = "/")}
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back to Dashboard
+          </button>
           <StatusBadge
             status={isEnded ? "Expired" : statusString}
-            className="h-10 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-4"
+            className="h-12 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-6"
           />
         </div>
 
@@ -96,7 +98,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
               <div className="text-beige-600">Coverage Amount</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-orange-600">{request.conditions.length}</div>
+              <div className="text-3xl font-bold text-orange-400">{request.conditions.length}</div>
               <div className="text-beige-600">Weather Conditions</div>
             </div>
             <div className="text-center">
@@ -146,15 +148,15 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
               </h2>
               <div className="bg-white rounded-xl p-4 border border-beige-300 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-orange-600">{isPast ? "Started:" : "Starting:"}</span>
+                  <span className="font-semibold text-orange-400">{isPast ? "Started:" : "Starting:"}</span>
                   <span className="text-beige-800 font-medium">{formattedTime.startDate}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-orange-600">Duration:</span>
+                  <span className="font-semibold text-orange-400">Duration:</span>
                   <span className="text-beige-800 font-medium">{formattedTime.lastingPeriod}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-orange-600">Ends:</span>
+                  <span className="font-semibold text-orange-400">Ends:</span>
                   <span className="text-beige-800 font-medium">{formattedTime.endDate}</span>
                 </div>
               </div>
@@ -300,10 +302,18 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
           {/* Expert Offers */}
           <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
             <div className="card-body">
-              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
-                <span className="text-skyblue-600">👨‍💼</span>
-                Expert Offers ({request.offers.length})
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
+                  <span className="text-skyblue-600">👨‍💼</span>
+                  Expert Offers ({request.offers.length})
+                </h2>
+                <button
+                  className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
+                  onClick={() => {}}
+                >
+                  Provide Offer
+                </button>
+              </div>
 
               <div className="space-y-4">
                 {request.offers.map((offer, index) => (

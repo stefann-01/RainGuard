@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CreateRequestModal from "./CreateRequestModal";
 import { hardhat } from "viem/chains";
-import { BugAntIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -22,9 +22,12 @@ export const menuLinks: HeaderMenuLink[] = [
   },
 
   {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
+    label: "My page",
+    href: "/my-page",
+  },
+  {
+    label: "Recommended",
+    href: "/recommended",
   },
 ];
 
@@ -69,7 +72,7 @@ export const Header = () => {
 
   return (
     <>
-      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50">
+      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-24">
         {/* Space for logo */}
         <div className="navbar-start w-auto lg:w-1/2">
           <div className="hidden lg:flex items-center ml-12">
@@ -94,7 +97,7 @@ export const Header = () => {
             </div>
           </div>
         </div>
-        <div className="navbar-end grow mr-12">
+        <div className="navbar-end grow mr-12 pr-24">
           <RainbowKitCustomConnectButton />
           {isLocalNetwork && <FaucetButton />}
         </div>
