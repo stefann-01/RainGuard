@@ -27,7 +27,7 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6">
+    <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6 pr-9">
       {/* Search Input */}
       <div className="w-full">
         <div className="flex flex-row items-center">
