@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CreateRequestModal from "./CreateRequestModal";
@@ -26,11 +27,11 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/my-page",
   },
   {
-    label: "Debug",
+    label: "D",
     href: "/debug",
   },
   {
-    label: "Blockexplorer",
+    label: "BE",
     href: "/blockexplorer",
   },
 ];
@@ -77,9 +78,12 @@ export const Header = () => {
   return (
     <>
       <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-12">
-        {/* Space for logo */}
         <div className="navbar-start w-auto lg:w-1/2">
           <div className="hidden lg:flex items-center ml-12">
+            <div className="flex items-center mr-2">
+              <Image src="/logo.png" alt="Logo" width={40} height={12} className="mr-2" />
+              <span className="font-futura-bold font-bold text-3xl text-beige-900">RainGuard</span>
+            </div>
             <div className="bg-beige-50 rounded-full shadow-md flex gap-2">
               <ul className="menu menu-horizontal gap-2">
                 <HeaderMenuLinks />

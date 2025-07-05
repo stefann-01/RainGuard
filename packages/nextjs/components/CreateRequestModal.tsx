@@ -76,6 +76,28 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      amount: "",
+      location: "",
+      startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+    });
+    setConditions([
+      {
+        weatherType: WeatherType.Rain,
+        op: Operator.GreaterThan,
+        aggregateValue: 0,
+        subThreshold: 0,
+        subOp: Operator.Equal,
+      },
+    ]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,6 +140,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
       });
 
       alert("Request created successfully!");
+      resetForm();
       onClose();
     } catch (error) {
       console.error("Error creating request:", error);
