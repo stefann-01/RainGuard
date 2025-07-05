@@ -94,3 +94,12 @@ export function getWeatherTypeIcon(weatherType: WeatherType): string {
       return "❓";
   }
 }
+
+// Format timestamp to consistent string
+export function formatTimestamp(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}

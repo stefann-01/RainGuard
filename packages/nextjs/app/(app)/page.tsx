@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { formatTimeRange } from "../utils/format.utils";
+import { formatTimeRange, getWeatherTypeIcon } from "../utils/format.utils";
 import SearchBar from "./_components/SearchBar";
 import StatusBadge from "./_components/StatusBadge";
 import { mockData } from "./mockdata";
@@ -118,7 +118,10 @@ export default function HomePage() {
                 className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative"
               >
                 <div className="card-body py-3 px-4">
-                  <h2 className="card-title text-lg mb-1 text-beige-900">{request.title}</h2>
+                  <h2 className="card-title text-lg mb-1 text-beige-900">
+                    {request.conditions.length > 0 && getWeatherTypeIcon(request.conditions[0].weatherType)}{" "}
+                    {request.title}
+                  </h2>
                   <p className="text-sm text-beige-700 mb-2 line-clamp-3">
                     {request.description || "No description available"}
                   </p>

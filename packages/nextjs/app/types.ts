@@ -42,12 +42,13 @@ export interface InsuranceRequest {
   status: number; // 0: pending, 1: funding, 2: active, 3: expired, 4: cancelled
   offers: Offer[];
   pool: Pool;
+  timestamp: Date; // When the request was created
 }
 
 export interface Offer {
   expert: string;
   premium: number;
-  timestamp: number;
+  timestamp: Date; // Changed from number to Date
 }
 
 export interface Pool {

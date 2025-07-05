@@ -3,7 +3,13 @@
 import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatTimeRange, getOperatorName, getWeatherTypeIcon, getWeatherTypeName } from "../../utils/format.utils";
+import {
+  formatTimeRange,
+  formatTimestamp,
+  getOperatorName,
+  getWeatherTypeIcon,
+  getWeatherTypeName,
+} from "../../utils/format.utils";
 import StatusBadge from "../_components/StatusBadge";
 import { mockData } from "../mockdata";
 import { useAccount } from "wagmi";
@@ -319,9 +325,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                     </div>
 
                     <div className="flex justify-between items-center mb-3">
-                      <div className="text-sm text-beige-600">
-                        Offered: {new Date(offer.timestamp * 1000).toLocaleDateString()}
-                      </div>
+                      <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
                     </div>
 
                     <button

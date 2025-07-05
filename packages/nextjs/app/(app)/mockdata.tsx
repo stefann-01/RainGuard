@@ -26,12 +26,12 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xabcdef1234567890abcdef1234567890abcdef12",
         premium: 250,
-        timestamp: Math.floor(new Date("2024-01-10T10:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-10T10:00:00"),
       },
       {
         expert: "0xfedcba0987654321fedcba0987654321fedcba09",
         premium: 280,
-        timestamp: Math.floor(new Date("2024-01-10T11:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-10T11:00:00"),
       },
     ],
     pool: {
@@ -39,6 +39,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 5000,
       active: true,
     },
+    timestamp: new Date("2024-01-15T08:00:00"),
   },
   {
     id: 2,
@@ -64,7 +65,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x1111111111111111111111111111111111111111",
         premium: 150,
-        timestamp: Math.floor(new Date("2024-01-09T14:30:00").getTime() / 1000),
+        timestamp: new Date("2024-01-09T14:30:00"),
       },
     ],
     pool: {
@@ -72,6 +73,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 3000,
       active: false,
     },
+    timestamp: new Date("2024-01-14T10:15:00"),
   },
   {
     id: 3,
@@ -97,7 +99,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x2222222222222222222222222222222222222222",
         premium: 500,
-        timestamp: Math.floor(new Date("2024-01-08T09:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-08T09:00:00"),
       },
     ],
     pool: {
@@ -105,6 +107,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 10000,
       active: true,
     },
+    timestamp: new Date("2024-01-13T06:30:00"),
   },
   {
     id: 4,
@@ -130,7 +133,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x3333333333333333333333333333333333333333",
         premium: 100,
-        timestamp: Math.floor(new Date("2024-01-07T10:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-07T10:00:00"),
       },
     ],
     pool: {
@@ -138,6 +141,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 2000,
       active: false,
     },
+    timestamp: new Date("2024-01-12T09:00:00"),
   },
   {
     id: 5,
@@ -170,7 +174,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x4444444444444444444444444444444444444444",
         premium: 320,
-        timestamp: Math.floor(new Date("2024-01-06T08:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-06T08:00:00"),
       },
     ],
     pool: {
@@ -178,6 +182,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 4000,
       active: true,
     },
+    timestamp: new Date("2024-01-11T07:45:00"),
   },
   {
     id: 6,
@@ -210,12 +215,12 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x5555555555555555555555555555555555555555",
         premium: 1250,
-        timestamp: Math.floor(new Date("2024-01-05T12:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-05T12:00:00"),
       },
       {
         expert: "0x6666666666666666666666666666666666666666",
         premium: 1100,
-        timestamp: Math.floor(new Date("2024-01-05T13:30:00").getTime() / 1000),
+        timestamp: new Date("2024-01-05T13:30:00"),
       },
     ],
     pool: {
@@ -223,6 +228,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 25000,
       active: false,
     },
+    timestamp: new Date("2024-01-10T00:00:00"),
   },
   {
     id: 7,
@@ -248,7 +254,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x7777777777777777777777777777777777777777",
         premium: 375,
-        timestamp: Math.floor(new Date("2024-01-04T14:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-04T14:00:00"),
       },
     ],
     pool: {
@@ -256,6 +262,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 7500,
       active: false,
     },
+    timestamp: new Date("2024-01-09T09:00:00"),
   },
   {
     id: 8,
@@ -288,7 +295,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x8888888888888888888888888888888888888888",
         premium: 750,
-        timestamp: Math.floor(new Date("2024-01-03T10:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-03T10:00:00"),
       },
     ],
     pool: {
@@ -296,6 +303,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 15000,
       active: false,
     },
+    timestamp: new Date("2024-01-08T00:00:00"),
   },
   {
     id: 9,
@@ -321,7 +329,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x9999999999999999999999999999999999999999",
         premium: 600,
-        timestamp: Math.floor(new Date("2024-01-02T11:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-02T11:00:00"),
       },
     ],
     pool: {
@@ -329,6 +337,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 12000,
       active: false,
     },
+    timestamp: new Date("2024-01-07T06:00:00"),
   },
   {
     id: 10,
@@ -361,7 +370,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         premium: 900,
-        timestamp: Math.floor(new Date("2024-01-01T09:00:00").getTime() / 1000),
+        timestamp: new Date("2024-01-01T09:00:00"),
       },
     ],
     pool: {
@@ -369,6 +378,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 18000,
       active: false,
     },
+    timestamp: new Date("2024-01-06T00:00:00"),
   },
   // Future insurance requests (upcoming months in 2025)
   {
@@ -395,7 +405,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xa0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9",
         premium: 300,
-        timestamp: Math.floor(new Date("2025-05-20T10:00:00").getTime() / 1000),
+        timestamp: new Date("2025-05-20T10:00:00"),
       },
     ],
     pool: {
@@ -403,6 +413,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 6000,
       active: false,
     },
+    timestamp: new Date("2025-06-15T09:00:00"),
   },
   {
     id: 12,
@@ -428,7 +439,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xb1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0",
         premium: 750,
-        timestamp: Math.floor(new Date("2025-05-15T11:00:00").getTime() / 1000),
+        timestamp: new Date("2025-05-15T11:00:00"),
       },
     ],
     pool: {
@@ -436,6 +447,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 15000,
       active: true,
     },
+    timestamp: new Date("2025-06-20T11:30:00"),
   },
   {
     id: 13,
@@ -475,7 +487,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xc2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1",
         premium: 1200,
-        timestamp: Math.floor(new Date("2025-06-10T07:00:00").getTime() / 1000),
+        timestamp: new Date("2025-06-10T07:00:00"),
       },
     ],
     pool: {
@@ -483,6 +495,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 20000,
       active: false,
     },
+    timestamp: new Date("2025-07-05T07:15:00"),
   },
   {
     id: 14,
@@ -508,7 +521,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xd3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
         premium: 175,
-        timestamp: Math.floor(new Date("2025-06-05T09:00:00").getTime() / 1000),
+        timestamp: new Date("2025-06-05T09:00:00"),
       },
     ],
     pool: {
@@ -516,6 +529,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 3500,
       active: true,
     },
+    timestamp: new Date("2025-07-12T08:45:00"),
   },
   {
     id: 15,
@@ -541,7 +555,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xe4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3",
         premium: 400,
-        timestamp: Math.floor(new Date("2025-06-15T10:00:00").getTime() / 1000),
+        timestamp: new Date("2025-06-15T10:00:00"),
       },
     ],
     pool: {
@@ -549,6 +563,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 8000,
       active: false,
     },
+    timestamp: new Date("2025-07-18T10:00:00"),
   },
   {
     id: 16,
@@ -588,12 +603,12 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         premium: 1750,
-        timestamp: Math.floor(new Date("2025-07-01T12:00:00").getTime() / 1000),
+        timestamp: new Date("2025-07-01T12:00:00"),
       },
       {
         expert: "0xcccccccccccccccccccccccccccccccccccccccc",
         premium: 1950,
-        timestamp: Math.floor(new Date("2025-07-02T10:30:00").getTime() / 1000),
+        timestamp: new Date("2025-07-02T10:30:00"),
       },
     ],
     pool: {
@@ -601,6 +616,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 35000,
       active: true,
     },
+    timestamp: new Date("2025-08-01T00:00:00"),
   },
   {
     id: 17,
@@ -626,7 +642,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xdddddddddddddddddddddddddddddddddddddddd",
         premium: 425,
-        timestamp: Math.floor(new Date("2025-07-15T14:00:00").getTime() / 1000),
+        timestamp: new Date("2025-07-15T14:00:00"),
       },
     ],
     pool: {
@@ -634,6 +650,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 8500,
       active: false,
     },
+    timestamp: new Date("2025-08-10T06:00:00"),
   },
   {
     id: 18,
@@ -666,7 +683,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         premium: 1100,
-        timestamp: Math.floor(new Date("2025-07-20T09:00:00").getTime() / 1000),
+        timestamp: new Date("2025-07-20T09:00:00"),
       },
     ],
     pool: {
@@ -674,6 +691,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 22000,
       active: true,
     },
+    timestamp: new Date("2025-08-15T18:00:00"),
   },
   {
     id: 19,
@@ -706,7 +724,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0xffffffffffffffffffffffffffffffffffffffffff",
         premium: 2250,
-        timestamp: Math.floor(new Date("2025-08-01T11:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-01T11:00:00"),
       },
     ],
     pool: {
@@ -714,6 +732,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 45000,
       active: false,
     },
+    timestamp: new Date("2025-09-01T00:00:00"),
   },
   {
     id: 20,
@@ -739,12 +758,12 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x1010101010101010101010101010101010101010",
         premium: 1400,
-        timestamp: Math.floor(new Date("2025-08-05T10:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-05T10:00:00"),
       },
       {
         expert: "0x2020202020202020202020202020202020202020",
         premium: 1200,
-        timestamp: Math.floor(new Date("2025-08-06T14:30:00").getTime() / 1000),
+        timestamp: new Date("2025-08-06T14:30:00"),
       },
     ],
     pool: {
@@ -752,6 +771,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 28000,
       active: true,
     },
+    timestamp: new Date("2025-09-05T07:00:00"),
   },
   {
     id: 21,
@@ -784,7 +804,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x3030303030303030303030303030303030303030",
         premium: 2500,
-        timestamp: Math.floor(new Date("2025-08-10T16:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-10T16:00:00"),
       },
     ],
     pool: {
@@ -792,6 +812,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 50000,
       active: false,
     },
+    timestamp: new Date("2025-09-10T00:00:00"),
   },
   {
     id: 22,
@@ -817,7 +838,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x4040404040404040404040404040404040404040",
         premium: 225,
-        timestamp: Math.floor(new Date("2025-08-15T12:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-15T12:00:00"),
       },
     ],
     pool: {
@@ -825,6 +846,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 4500,
       active: true,
     },
+    timestamp: new Date("2025-09-15T08:00:00"),
   },
   {
     id: 23,
@@ -850,7 +872,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x5050505050505050505050505050505050505050",
         premium: 3750,
-        timestamp: Math.floor(new Date("2025-08-20T09:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-20T09:00:00"),
       },
     ],
     pool: {
@@ -858,6 +880,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 75000,
       active: false,
     },
+    timestamp: new Date("2025-09-20T00:00:00"),
   },
   {
     id: 24,
@@ -890,12 +913,12 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x6060606060606060606060606060606060606060",
         premium: 925,
-        timestamp: Math.floor(new Date("2025-08-25T15:00:00").getTime() / 1000),
+        timestamp: new Date("2025-08-25T15:00:00"),
       },
       {
         expert: "0x7070707070707070707070707070707070707070",
         premium: 850,
-        timestamp: Math.floor(new Date("2025-08-26T11:30:00").getTime() / 1000),
+        timestamp: new Date("2025-08-26T11:30:00"),
       },
     ],
     pool: {
@@ -903,6 +926,7 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 18500,
       active: true,
     },
+    timestamp: new Date("2025-09-25T12:00:00"),
   },
   {
     id: 25,
@@ -935,7 +959,7 @@ export const mockData: InsuranceRequest[] = [
       {
         expert: "0x8080808080808080808080808080808080808080",
         premium: 1600,
-        timestamp: Math.floor(new Date("2025-09-01T13:00:00").getTime() / 1000),
+        timestamp: new Date("2025-09-01T13:00:00"),
       },
     ],
     pool: {
@@ -943,5 +967,6 @@ export const mockData: InsuranceRequest[] = [
       fundingGoal: 32000,
       active: false,
     },
+    timestamp: new Date("2025-10-01T00:00:00"),
   },
 ];
