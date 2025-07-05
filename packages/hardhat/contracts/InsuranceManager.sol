@@ -66,14 +66,15 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         require(req.user != address(0), "Request does not exist");
         require(req.status == 0, "Request not pending");
         require(premium > 0, "Premium must be positive");
+        uint256 offerId = req.offers.length;
         Offer memory offer = Offer({
+            id: offerId,
             expert: msg.sender,
             premium: premium,
             timestamp: block.timestamp,
             description: description
         });
         req.offers.push(offer);
-        uint256 offerId = req.offers.length - 1;
         emit EventsLib.OfferSubmitted(requestId, offerId, msg.sender);
     }
 
@@ -83,7 +84,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         require(req.user == msg.sender, "Not request creator");
         require(req.status == 0, "Request not pending");
         require(offerId < req.offers.length, "Invalid offerId");
-        req.selectedOffer = offerId;
+        req.selectedOffer = req.offers[offerId];
         req.status = 1; // funding
         emit EventsLib.OfferSelected(requestId, offerId);
     }
@@ -214,7 +215,10 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        uint256 selectedOffer
+        uint256 selectedOfferId,
+        address selectedExpert,
+        uint256 selectedPremium,
+        string memory selectedDescription
     ) {
         InsuranceRequest storage req = requests[requestId];
         return (
@@ -229,7 +233,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             req.status,
             req.totalFunded,
             req.payout,
-            req.selectedOffer
+            req.selectedOffer.id
         );
     }
 
