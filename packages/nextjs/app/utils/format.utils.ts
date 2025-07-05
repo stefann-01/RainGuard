@@ -1,5 +1,18 @@
 import { Operator, WeatherType } from "~~/app/types";
 
+// Format USDC amount (6 decimals) to display format
+export function formatUSDCAmount(amount: number): string {
+  // Convert from 6 decimal places to actual USDC amount
+  const usdcAmount = amount / 1000000;
+  return `${usdcAmount.toLocaleString()} USDC`;
+}
+
+// Format USDC amount with decimals for precise display
+export function formatUSDCAmountWithDecimals(amount: number): string {
+  const usdcAmount = amount / 1000000;
+  return `${usdcAmount.toFixed(2)} USDC`;
+}
+
 export interface FormattedTime {
   startDate: string;
   lastingPeriod: string;

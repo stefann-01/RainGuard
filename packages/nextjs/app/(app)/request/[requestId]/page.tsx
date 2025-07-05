@@ -1,10 +1,10 @@
 "use client";
 
 import { use, useState } from "react";
-import { notFound } from "next/navigation";
 import {
   formatTimeRange,
   formatTimestamp,
+  formatUSDCAmount,
   getOperatorName,
   getWeatherTypeIcon,
   getWeatherTypeName,
@@ -48,8 +48,10 @@ const getStatusString = (numericStatus: number): SensorStatus => {
   }
 };
 
-// Component to fetch and display request details
-const RequestDetails = ({ requestId }: { requestId: number }) => {
+export default function RequestDetailsPage({ params }: RequestDetailsPageProps) {
+  const resolvedParams = use(params);
+  const requestId = resolvedParams.requestId;
+
   const { address: connectedAddress } = useAccount();
   const [fundAmount, setFundAmount] = useState("");
 
@@ -92,10 +94,6 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
     );
   }
 
-  if (!basicData) {
-    notFound();
-  }
-
   // Convert Solidity data to TypeScript types
   const convertedConditions: WeatherCondition[] = (conditions || []).map((condition: any) => ({
     weatherType: Number(condition.weatherType),
@@ -118,25 +116,25 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
 
   // Destructure the tuple returned by getRequestBasic
   const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOffer] =
-    basicData;
+    basicData || [];
 
   const request: InsuranceRequest = {
-    id: Number(id),
-    title,
-    description,
-    user,
-    amount: Number(amount),
+    id: Number(id || 0),
+    title: title || "",
+    description: description || "",
+    user: user || "",
+    amount: Number(amount || 0),
     conditions: convertedConditions,
-    location,
-    start: new Date(Number(start) * 1000),
-    end: new Date(Number(end) * 1000),
-    status: Number(status),
+    location: location || "",
+    start: new Date(Number(start || 0) * 1000),
+    end: new Date(Number(end || 0) * 1000),
+    status: Number(status || 0),
     offers: convertedOffers,
-    selectedOffer: Number(selectedOffer),
+    selectedOffer: Number(selectedOffer || 0),
     investments: convertedInvestments,
-    totalFunded: Number(totalFunded),
-    payout,
-    timestamp: new Date(), // We don't have this in the contract, using current time
+    totalFunded: Number(totalFunded || 0),
+    payout: payout || false,
+    timestamp: new Date(),
   };
 
   const formattedTime = formatTimeRange(request.start, request.end);
@@ -182,7 +180,7 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-skyblue-600">${request.amount.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-skyblue-600">{formatUSDCAmount(request.amount)}</div>
               <div className="text-beige-600">Coverage Amount</div>
             </div>
             <div className="text-center">
@@ -319,11 +317,11 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
 
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">${request.totalFunded.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(request.totalFunded)}</div>
                     <div className="text-sm text-beige-600">Funded</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">${fundingGoal.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(fundingGoal)}</div>
                     <div className="text-sm text-beige-600">Goal</div>
                   </div>
                 </div>
@@ -413,7 +411,7 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-skyblue-600">${offer.premium}</div>
+                        <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
                         <div className="text-sm text-beige-600">Premium</div>
                       </div>
                     </div>
@@ -449,15 +447,4 @@ const RequestDetails = ({ requestId }: { requestId: number }) => {
       </div>
     </div>
   );
-};
-
-export default function RequestDetailsPage({ params }: RequestDetailsPageProps) {
-  const { requestId } = use(params);
-  const requestIdNumber = parseInt(requestId);
-
-  if (isNaN(requestIdNumber)) {
-    notFound();
-  }
-
-  return <RequestDetails requestId={requestIdNumber} />;
 }
