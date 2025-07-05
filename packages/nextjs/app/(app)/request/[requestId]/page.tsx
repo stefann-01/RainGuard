@@ -108,7 +108,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
     expert: offer.expert,
     premium: Number(offer.premium),
-    description: offer.description,
+    description: offer.description || "", // Add description with fallback
     timestamp: new Date(Number(offer.timestamp) * 1000),
   }));
 
@@ -418,6 +418,10 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                         <div className="text-sm text-beige-600">Premium</div>
                       </div>
                     </div>
+
+                    {offer.description && (
+                      <div className="mb-3 text-sm text-beige-700 bg-beige-50 p-3 rounded-lg">{offer.description}</div>
+                    )}
 
                     <div className="flex justify-between items-center mb-3">
                       <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
