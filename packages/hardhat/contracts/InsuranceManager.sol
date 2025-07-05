@@ -14,6 +14,7 @@ import { EventsLib } from "./EventsLib.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract InsuranceManager is IInsuranceManager, Ownable {
+    constructor() Ownable(0x1dbfaCAAB8792FbA1b5993eF09D59E388Bb0F395) {}
     // Storage
     uint256 public requestCount;
     mapping(uint256 => InsuranceRequest) public requests;
@@ -47,7 +48,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             req.conditions.push(conditions[i]);
         }
         requestCount++;
-        emit InsuranceRequestCreated(requestId, msg.sender);
+        emit EventsLib.InsuranceRequestCreated(requestId, msg.sender);
     }
 
     // Experts submit offers for a request
@@ -63,7 +64,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         });
         req.offers.push(offer);
         uint256 offerId = req.offers.length - 1;
-        emit OfferSubmitted(requestId, offerId, msg.sender);
+        emit EventsLib.OfferSubmitted(requestId, offerId, msg.sender);
     }
 
     // Only request creator can select an offer
@@ -74,7 +75,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         require(offerId < req.offers.length, "Invalid offerId");
         req.selectedOffer = offerId;
         req.status = 1; // funding
-        emit OfferSelected(requestId, offerId);
+        emit EventsLib.OfferSelected(requestId, offerId);
     }
 
     // Investors fund the pool for the selected request
@@ -98,7 +99,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             }));
         }
         req.totalFunded += msg.value;
-        emit PoolFunded(requestId, msg.sender, msg.value);
+        emit EventsLib.PoolFunded(requestId, msg.sender, msg.value);
         // Funding goal is amount (coverage only)
         if (req.totalFunded >= req.amount) {
             req.status = 2; // premium payment phase
@@ -134,7 +135,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             require(sent, "Premium distribution failed");
         }
         req.status = 3; // active
-        emit PolicyActivated(requestId, requestId);
+        emit EventsLib.PolicyActivated(requestId, requestId);
     }
 
     // Settle the policy after the period ends; mock oracle integration
@@ -154,7 +155,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             require(sent, "Payout failed");
         }
         req.status = 4; // expired
-        emit PolicySettled(requestId, payout);
+        emit EventsLib.PolicySettled(requestId, payout);
         // Update expert reputation
         address expert = req.offers[req.selectedOffer].expert;
         if (payout) {
@@ -185,6 +186,6 @@ contract InsuranceManager is IInsuranceManager, Ownable {
     // Update expert reputation (simple logic)
     function updateReputation(address expert, int256 scoreChange) public {
         expertReputation[expert] += scoreChange;
-        emit ReputationUpdated(expert, scoreChange);
+        emit EventsLib.ReputationUpdated(expert, scoreChange);
     }
 } 
