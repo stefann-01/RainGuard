@@ -1,20 +1,28 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
-import { notFound } from "next/navigation";
+import { use, useState } from "react";
 import {
   formatTimeRange,
   formatTimestamp,
+  formatUSDCAmount,
   getOperatorName,
   getWeatherTypeIcon,
   getWeatherTypeName,
-} from "../../utils/format.utils";
-import StatusBadge from "../_components/StatusBadge";
-import { mockData } from "../mockdata";
+} from "../../../utils/format.utils";
+import StatusBadge from "../../_components/StatusBadge";
 import { ChevronLeft } from "lucide-react";
 import { useAccount } from "wagmi";
-import { DEFAULT_SENSOR_STATUS, SensorStatus, WeatherType } from "~~/app/types";
+import {
+  DEFAULT_SENSOR_STATUS,
+  InsuranceRequest,
+  Investment,
+  Offer,
+  SensorStatus,
+  WeatherCondition,
+  WeatherType,
+} from "~~/app/types";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
 interface RequestDetailsPageProps {
   params: Promise<{
@@ -41,27 +49,103 @@ const getStatusString = (numericStatus: number): SensorStatus => {
 };
 
 export default function RequestDetailsPage({ params }: RequestDetailsPageProps) {
-  const { requestId } = use(params);
-  const requestIdNumber = parseInt(requestId);
+  const resolvedParams = use(params);
+  const requestId = resolvedParams.requestId;
+
   const { address: connectedAddress } = useAccount();
   const [fundAmount, setFundAmount] = useState("");
 
-  const request = useMemo(() => {
-    return mockData.find(r => r.id === requestIdNumber);
-  }, [requestIdNumber]);
+  // Fetch basic request data
+  const { data: basicData, isLoading: basicLoading } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getRequestBasic",
+    args: [BigInt(requestId)],
+  });
 
-  if (!request) {
-    notFound();
+  // Fetch conditions
+  const { data: conditions } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getConditions",
+    args: [BigInt(requestId)],
+  });
+
+  // Fetch offers
+  const { data: offers } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getOffers",
+    args: [BigInt(requestId)],
+  });
+
+  // Fetch investments
+  const { data: investments } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getInvestments",
+    args: [BigInt(requestId)],
+  });
+
+  if (basicLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading loading-spinner loading-lg"></div>
+          <p className="mt-4 text-beige-700">Loading request details...</p>
+        </div>
+      </div>
+    );
   }
+
+  // Convert Solidity data to TypeScript types
+  const convertedConditions: WeatherCondition[] = (conditions || []).map((condition: any) => ({
+    weatherType: Number(condition.weatherType),
+    op: Number(condition.op),
+    aggregateValue: Number(condition.aggregateValue),
+    subThreshold: Number(condition.subThreshold),
+    subOp: Number(condition.subOp),
+  }));
+
+  const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
+    expert: offer.expert,
+    premium: Number(offer.premium),
+    timestamp: new Date(Number(offer.timestamp) * 1000),
+  }));
+
+  const convertedInvestments: Investment[] = (investments || []).map((investment: any) => ({
+    investor: investment.investor,
+    amount: Number(investment.amount),
+  }));
+
+  // Destructure the tuple returned by getRequestBasic
+  const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOffer] =
+    basicData || [];
+
+  const request: InsuranceRequest = {
+    id: Number(id || 0),
+    title: title || "",
+    description: description || "",
+    user: user || "",
+    amount: Number(amount || 0),
+    conditions: convertedConditions,
+    location: location || "",
+    start: new Date(Number(start || 0) * 1000),
+    end: new Date(Number(end || 0) * 1000),
+    status: Number(status || 0),
+    offers: convertedOffers,
+    selectedOffer: Number(selectedOffer || 0),
+    investments: convertedInvestments,
+    totalFunded: Number(totalFunded || 0),
+    payout: payout || false,
+    timestamp: new Date(),
+  };
 
   const formattedTime = formatTimeRange(request.start, request.end);
   const currentDate = new Date();
   const isPast = request.start < currentDate;
   const isEnded = request.end < currentDate;
   const statusString = getStatusString(request.status);
-  // Funding goal placeholder (since not in struct)
-  const fundingGoal = 10000; // TODO: Replace with real value if needed
-  const fundingProgress = Math.round((request.totalFunded / fundingGoal) * 100);
+
+  // Funding goal is the request amount
+  const fundingGoal = request.amount;
+  const fundingProgress = fundingGoal > 0 ? Math.round((request.totalFunded / fundingGoal) * 100) : 0;
 
   // Check if the connected user is the requester
   const isRequester = connectedAddress && connectedAddress.toLowerCase() === request.user.toLowerCase();
@@ -96,7 +180,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-skyblue-600">${request.amount.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-skyblue-600">{formatUSDCAmount(request.amount)}</div>
               <div className="text-beige-600">Coverage Amount</div>
             </div>
             <div className="text-center">
@@ -233,11 +317,11 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">${request.totalFunded.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(request.totalFunded)}</div>
                     <div className="text-sm text-beige-600">Funded</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">${fundingGoal.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(fundingGoal)}</div>
                     <div className="text-sm text-beige-600">Goal</div>
                   </div>
                 </div>
@@ -327,7 +411,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-skyblue-600">${offer.premium}</div>
+                        <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
                         <div className="text-sm text-beige-600">Premium</div>
                       </div>
                     </div>
