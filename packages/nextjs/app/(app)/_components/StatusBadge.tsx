@@ -10,46 +10,47 @@ export default function StatusBadge({ status, className = "" }: StatusBadgeProps
     switch (status) {
       case "Pending":
         return {
-          color: "badge-warning",
-          textColor: "text-yellow-800",
+          bgColor: "bg-beige-200",
+          textColor: "text-beige-800",
           text: "Pending",
         };
       case "Funding":
         return {
-          color: "badge-info",
-          textColor: "text-blue-800",
+          bgColor: "bg-skyblue-100",
+          textColor: "text-skyblue-700",
           text: "Funding",
         };
       case "Active":
         return {
-          color: "badge-success",
-          textColor: "text-green-800",
+          bgColor: "bg-skyblue-400",
+          textColor: "text-white",
           text: "Active",
         };
       case "Expired":
         return {
-          color: "badge-error",
-          textColor: "text-red-800",
+          bgColor: "bg-orange-400",
+          textColor: "text-white",
           text: "Expired",
         };
       case "Cancelled":
         return {
-          color: "badge-neutral",
-          textColor: "text-gray-800",
+          bgColor: "bg-beige-300",
+          textColor: "text-beige-800",
           text: "Cancelled",
         };
       default:
         return {
-          color: "badge-warning",
-          textColor: "text-yellow-800",
+          bgColor: "bg-beige-200",
+          textColor: "text-beige-800",
           text: "Pending",
         };
     }
   };
+
   const config = getStatusConfig(status);
 
   return (
-    <div className={`badge ${config.color} ${config.textColor} ${className} rounded-xl border border-base-300`}>
+    <div className={`badge ${config.bgColor} ${config.textColor} border-none font-medium ${className}`}>
       {config.text}
     </div>
   );

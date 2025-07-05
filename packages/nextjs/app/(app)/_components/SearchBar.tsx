@@ -27,18 +27,18 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6 pr-9">
+    <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6">
       {/* Search Input */}
-      <div className="w-full">
-        <div className="flex flex-row items-center">
+      <div className="w-full sm:max-w-xl">
+        <div className="input-group w-full">
           <input
             type="text"
             placeholder="Search sensors..."
-            className="input input-bordered flex-1 focus:outline-none"
+            className="input bg-beige-50 border-beige-200 focus:border-skyblue-400 focus:outline-none text-beige-900 placeholder-beige-500 flex-1"
             value={searchQuery}
             onChange={handleSearchChange}
           />
-          <button className="btn btn-primary btn-square mx-2">
+          <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none mx-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -59,7 +59,7 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
       {/* Controls */}
       <div className="flex flex-row gap-2 items-center">
         <select
-          className="select select-bordered w-auto min-w-fit focus:outline-none"
+          className="select bg-beige-50 border-beige-200 focus:border-skyblue-400 focus:outline-none text-beige-900 w-auto min-w-fit"
           onChange={handleSortChange}
           defaultValue="startDate"
         >
@@ -67,7 +67,14 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
           <option value="title">Sort by Title</option>
           <option value="description">Sort by Description</option>
         </select>
-        <button className={`btn ${showPast ? "btn-primary" : "btn-outline"}`} onClick={handleShowPastToggle}>
+        <button
+          className={`btn border-none ${
+            showPast
+              ? "bg-orange-400 hover:bg-orange-500 text-white"
+              : "bg-beige-200 hover:bg-beige-300 text-orange-600"
+          }`}
+          onClick={handleShowPastToggle}
+        >
           {showPast ? "Hide Past" : "Show Past"}
         </button>
       </div>

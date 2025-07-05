@@ -5,6 +5,42 @@
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  /* Beige Shades */
+  --color-beige-50: #fdfcf8;
+  --color-beige-100: #f8f6f2;
+  --color-beige-200: #f3eee3;
+  --color-beige-300: #ede6d6;
+  --color-beige-400: #e6dcc7;
+  --color-beige-500: #ded2b8;
+  --color-beige-600: #c7bca3;
+  --color-beige-700: #a89e87;
+  --color-beige-800: #857c6a;
+  --color-beige-900: #5c564a;
+
+  /* Sky Blue Shades */
+  --color-skyblue-50: #e0f6fe;
+  --color-skyblue-100: #b9eaff;
+  --color-skyblue-200: #8edcff;
+  --color-skyblue-300: #5ecbfa;
+  --color-skyblue-400: #38bdf8;
+  --color-skyblue-500: #0ea5e9;
+  --color-skyblue-600: #0284c7;
+  --color-skyblue-700: #0369a1;
+  --color-skyblue-800: #075985;
+  --color-skyblue-900: #0c4a6e;
+
+  /* Orange Shades */
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
 }
 
 @plugin "daisyui" {

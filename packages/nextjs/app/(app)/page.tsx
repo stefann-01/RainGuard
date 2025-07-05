@@ -64,11 +64,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-beige-100">
       {/* Header */}
       <div className="px-48 pt-4">
-        <h1 className="text-4xl font-bold text-base-content mb-2">RainGuard Dashboard</h1>
-        <p className="text-base-content/70">Monitor your rain sensors across the city</p>
+        <h1 className="text-4xl font-bold text-beige-900 mb-2">RainGuard Dashboard</h1>
+        <p className="text-beige-700">Monitor your rain sensors across the city</p>
       </div>
 
       {/* Search and Filters */}
@@ -93,24 +93,27 @@ export default function HomePage() {
             return (
               <div
                 key={sensor.id}
-                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative"
+                className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative"
               >
                 <div className="card-body p-6">
-                  <h2 className="card-title text-lg mb-2">{sensor.title}</h2>
-                  <p className="text-sm text-base-content/70 mb-4">{sensor.description}</p>
+                  <h2 className="card-title text-lg mb-2 text-beige-900">{sensor.title}</h2>
+                  <p className="text-sm text-beige-700 mb-4">{sensor.description}</p>
 
                   <div className="mb-4">
                     <p className="text-sm">
-                      <span className="font-semibold">{isPast ? "Started:" : "Starting:"}</span>{" "}
-                      {formattedTime.startDate}
+                      <span className="font-semibold text-orange-600">{isPast ? "Started:" : "Starting:"}</span>{" "}
+                      <span className="text-beige-800">{formattedTime.startDate}</span>
                     </p>
                     <p className="text-sm">
-                      <span className="font-semibold">Duration:</span> {formattedTime.lastingPeriod}
+                      <span className="font-semibold text-orange-600">Duration:</span>{" "}
+                      <span className="text-beige-800">{formattedTime.lastingPeriod}</span>
                     </p>
                   </div>
 
                   <div className="card-actions justify-end">
-                    <button className="btn btn-primary btn-sm">View Details</button>
+                    <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm">
+                      View Details
+                    </button>
                   </div>
                   {/* Status Badge in bottom left */}
                   <div className="absolute left-6 bottom-6">
@@ -125,7 +128,7 @@ export default function HomePage() {
         {/* No results message */}
         {filteredAndSortedData.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-base-content/70 text-lg">No sensors found matching your criteria.</p>
+            <p className="text-beige-700 text-lg">No sensors found matching your criteria.</p>
           </div>
         )}
       </div>
