@@ -28,7 +28,7 @@ export default function StatusBadge({ status, className = "" }: StatusBadgeProps
         };
       case "Expired":
         return {
-          bgColor: "bg-orange-400",
+          bgColor: "bg-orange-300",
           textColor: "text-white",
           text: "Expired",
         };

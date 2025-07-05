@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
@@ -40,8 +40,8 @@ export const HeaderMenuLinks = () => {
               href={href}
               passHref
               className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+                isActive ? "bg-skyblue-100 font-bold text-skyblue-800" : "bg-transparent text-skyblue-700"
+              } rounded-full px-5 py-2 text-sm grid grid-flow-col gap-2 shadow-none hover:bg-skyblue-50 transition`}
             >
               {icon}
               <span>{label}</span>
@@ -66,14 +66,18 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-transparent shadow-none min-h-0 shrink-0 justify-between z-20">
       {/* Space for logo */}
       <div className="navbar-start w-auto lg:w-1/2">
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
+        <div className="hidden lg:flex">
+          <div className="bg-beige-50/80 rounded-full shadow-md flex gap-2 mt-3 ml-12">
+            <ul className="menu menu-horizontal gap-2">
+              <HeaderMenuLinks />
+            </ul>
+          </div>
+        </div>
       </div>
-      <div className="navbar-end grow mr-4">
+      <div className="navbar-end grow mr-12">
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}
       </div>

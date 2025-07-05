@@ -30,7 +30,7 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
     <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6">
       {/* Search Input */}
       <div className="w-full sm:max-w-xl">
-        <div className="input-group w-full">
+        <div className="input-group flex flex-row">
           <input
             type="text"
             placeholder="Search sensors..."
