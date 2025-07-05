@@ -90,7 +90,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     const startDateTime = new Date(`${formData.startDate}T${formData.startTime || "00:00"}`);
     const endDateTime = new Date(`${formData.endDate}T${formData.endTime || "23:59"}`);
 
-    const newRequest: Omit<InsuranceRequest, "id" | "status" | "offers" | "pool" | "timestamp"> = {
+    const newRequest: Omit<InsuranceRequest, "id" | "status" | "offers" | "timestamp"> = {
       title: formData.title,
       description: formData.description || undefined,
       user: connectedAddress!,
@@ -105,6 +105,10 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
       location: formData.location,
       start: startDateTime,
       end: endDateTime,
+      selectedOffer: 0,
+      investments: [],
+      totalFunded: 0,
+      payout: false,
     };
 
     console.log("New request:", newRequest);

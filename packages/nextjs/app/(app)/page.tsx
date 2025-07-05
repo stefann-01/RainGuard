@@ -87,13 +87,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="px-48 pt-4">
+      <div className="px-24 pt-4">
         <h1 className="text-4xl font-bold text-beige-900 mb-2">Dashboard</h1>
         <p className="text-beige-700">Protect your business with on-chain weather insurance coverage</p>
       </div>
 
       {/* Search and Filters */}
-      <div className="px-48">
+      <div className="px-24">
         <SearchBar
           onSearchAction={handleSearch}
           onSortAction={handleSort}
@@ -103,7 +103,7 @@ export default function HomePage() {
       </div>
 
       {/* Cards Grid */}
-      <div className="px-48 pb-8">
+      <div className="px-24 pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filteredAndSortedData.map(request => {
             const formattedTime = formatTimeRange(request.start, request.end);

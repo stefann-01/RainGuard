@@ -59,7 +59,9 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const isPast = request.start < currentDate;
   const isEnded = request.end < currentDate;
   const statusString = getStatusString(request.status);
-  const fundingProgress = Math.round((request.pool.totalFunded / request.pool.fundingGoal) * 100);
+  // Funding goal placeholder (since not in struct)
+  const fundingGoal = 10000; // TODO: Replace with real value if needed
+  const fundingProgress = Math.round((request.totalFunded / fundingGoal) * 100);
 
   // Check if the connected user is the requester
   const isRequester = connectedAddress && connectedAddress.toLowerCase() === request.user.toLowerCase();
@@ -68,7 +70,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const isConnected = !!connectedAddress;
 
   // Calculate remaining funding needed
-  const remainingFunding = request.pool.fundingGoal - request.pool.totalFunded;
+  const remainingFunding = fundingGoal - request.totalFunded;
 
   return (
     <div className="min-h-screen py-8">
@@ -231,24 +233,20 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">
-                      ${request.pool.totalFunded.toLocaleString()}
-                    </div>
+                    <div className="text-2xl font-bold text-beige-900">${request.totalFunded.toLocaleString()}</div>
                     <div className="text-sm text-beige-600">Funded</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-beige-900">
-                      ${request.pool.fundingGoal.toLocaleString()}
-                    </div>
+                    <div className="text-2xl font-bold text-beige-900">${fundingGoal.toLocaleString()}</div>
                     <div className="text-sm text-beige-600">Goal</div>
                   </div>
                 </div>
 
                 <div className="text-center">
                   <div
-                    className={`badge ${request.pool.active ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
+                    className={`badge ${request.status === 2 ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
                   >
-                    {request.pool.active ? "🟢 Active" : "⚪ Inactive"}
+                    {request.status === 2 ? "🟢 Active" : "⚪ Inactive"}
                   </div>
                 </div>
 

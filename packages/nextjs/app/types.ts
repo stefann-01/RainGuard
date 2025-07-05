@@ -28,6 +28,12 @@ export interface WeatherCondition {
   subOp: Operator; // e.g., GreaterThan (for wind speed), ignored for simple cases
 }
 
+// New Investment struct to match Solidity
+export interface Investment {
+  investor: string;
+  amount: number;
+}
+
 // Structs
 export interface InsuranceRequest {
   id: number;
@@ -41,20 +47,17 @@ export interface InsuranceRequest {
   end: Date; // Changed from number to Date
   status: number; // 0: pending, 1: funding, 2: active, 3: expired, 4: cancelled
   offers: Offer[];
-  pool: Pool;
+  selectedOffer: number; // offer index
+  investments: Investment[];
+  totalFunded: number;
+  payout: boolean;
   timestamp: Date; // When the request was created
 }
 
 export interface Offer {
   expert: string;
   premium: number;
-  timestamp: Date; // Changed from number to Date
-}
-
-export interface Pool {
-  totalFunded: number;
-  fundingGoal: number;
-  active: boolean;
+  timestamp: Date; // Changed back to Date for frontend convenience
 }
 
 // Legacy types for backward compatibility (will be removed)

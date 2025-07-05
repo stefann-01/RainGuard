@@ -29,6 +29,14 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "Recommended",
     href: "/recommended",
   },
+  {
+    label: "Debug",
+    href: "/debug",
+  },
+  {
+    label: "Blockexplorer",
+    href: "/blockexplorer",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
@@ -72,7 +80,7 @@ export const Header = () => {
 
   return (
     <>
-      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-24">
+      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-18">
         {/* Space for logo */}
         <div className="navbar-start w-auto lg:w-1/2">
           <div className="hidden lg:flex items-center ml-12">
@@ -97,7 +105,7 @@ export const Header = () => {
             </div>
           </div>
         </div>
-        <div className="navbar-end grow mr-12 pr-24">
+        <div className="navbar-end grow mr-12 pr-18">
           <RainbowKitCustomConnectButton />
           {isLocalNetwork && <FaucetButton />}
         </div>
