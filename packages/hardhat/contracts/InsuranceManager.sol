@@ -22,6 +22,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
     }
     // Storage
     uint256 public requestCount;
+    uint256[] public requestIds; // Track all request IDs
     mapping(uint256 => InsuranceRequest) public requests;
     mapping(address => int256) public expertReputation;
 
@@ -53,6 +54,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
             req.conditions.push(conditions[i]);
         }
         requestCount++;
+        requestIds.push(requestId);
         emit EventsLib.InsuranceRequestCreated(requestId, msg.sender);
     }
 
@@ -234,5 +236,10 @@ contract InsuranceManager is IInsuranceManager, Ownable {
 
     function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory) {
         return requests[requestId].conditions;
+    }
+
+    // Getter for all request IDs
+    function getAllRequestIds() external view returns (uint256[] memory) {
+        return requestIds;
     }
 } 
