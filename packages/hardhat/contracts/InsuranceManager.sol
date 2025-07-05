@@ -190,4 +190,88 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         expertReputation[expert] += scoreChange;
         emit EventsLib.ReputationUpdated(expert, scoreChange);
     }
+
+    // Getter for complete InsuranceRequest including all arrays
+    function getRequest(uint256 requestId) external view returns (
+        uint256 id,
+        string memory title,
+        string memory description,
+        address user,
+        uint256 amount,
+        string memory location,
+        uint256 start,
+        uint256 end,
+        uint8 status,
+        uint256 totalFunded,
+        bool payout,
+        WeatherCondition[] memory conditions,
+        Offer[] memory offers,
+        uint256 selectedOffer,
+        Investment[] memory investments
+    ) {
+        InsuranceRequest storage req = requests[requestId];
+        return (
+            req.id,
+            req.title,
+            req.description,
+            req.user,
+            req.amount,
+            req.location,
+            req.start,
+            req.end,
+            req.status,
+            req.totalFunded,
+            req.payout,
+            req.conditions,
+            req.offers,
+            req.selectedOffer,
+            req.investments
+        );
+    }
+
+    // Getter for number of offers for a request
+    function getOffersLength(uint256 requestId) external view returns (uint256) {
+        return requests[requestId].offers.length;
+    }
+
+    // Getter for a single offer
+    function getOffer(uint256 requestId, uint256 offerIndex) external view returns (
+        address expert,
+        uint256 premium,
+        uint256 timestamp
+    ) {
+        Offer storage offer = requests[requestId].offers[offerIndex];
+        return (offer.expert, offer.premium, offer.timestamp);
+    }
+
+    // Getter for number of investments for a request
+    function getInvestmentsLength(uint256 requestId) external view returns (uint256) {
+        return requests[requestId].investments.length;
+    }
+
+    // Getter for a single investment
+    function getInvestment(uint256 requestId, uint256 investmentIndex) external view returns (
+        address investor,
+        uint256 amount
+    ) {
+        Investment storage inv = requests[requestId].investments[investmentIndex];
+        return (inv.investor, inv.amount);
+    }
+
+    // Getter for number of conditions for a request
+    function getConditionsLength(uint256 requestId) external view returns (uint256) {
+        return requests[requestId].conditions.length;
+    }
+
+    // Getter for a single condition
+    function getCondition(uint256 requestId, uint256 conditionIndex) external view returns (
+        WeatherType weatherType,
+        Operator op,
+        uint256 aggregateValue,
+        uint256 subThreshold,
+        Operator subOp
+    ) {
+        WeatherCondition storage cond = requests[requestId].conditions[conditionIndex];
+        return (cond.weatherType, cond.op, cond.aggregateValue, cond.subThreshold, cond.subOp);
+    }
 } 

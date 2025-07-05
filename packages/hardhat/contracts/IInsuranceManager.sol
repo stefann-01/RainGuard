@@ -10,8 +10,8 @@ struct WeatherCondition {
     WeatherType weatherType; // e.g., Wind
     Operator op;             // e.g., GreaterThan (for the count or threshold)
     uint256 aggregateValue;  // e.g., 100 (hours) or threshold value for simple cases
-    uint256 subThreshold;    // e.g., 50 (km/h), ignored for simple cases
-    Operator subOp;          // e.g., GreaterThan (for wind speed), ignored for simple cases
+    uint256 subThreshold;    // e.g., 50 (km/h), 0 for simple cases
+    Operator subOp;          // e.g., GreaterThan (for wind speed), 0 for simple cases
 }
 
 struct Offer {
@@ -33,8 +33,8 @@ struct InsuranceRequest {
     uint256 amount;
     WeatherCondition[] conditions;
     string location;
-    uint256 start;
-    uint256 end;
+    uint256 start; // unix timestamp
+    uint256 end; // unix timestamp
     uint8 status; // 0: pending, 1: funding, 2: premium, 3: active, 4: expired, 5: cancelled
     Offer[] offers;
     uint256 selectedOffer; // offer index
@@ -61,4 +61,44 @@ interface IInsuranceManager {
     function settlePolicy(uint256 requestId, bool conditionMet) external;
     function withdrawInvestment(uint256 requestId) external;
     function updateReputation(address expert, int256 scoreChange) external;
+
+    function getRequest(uint256 requestId) external view returns (
+        uint256 id,
+        string memory title,
+        string memory description,
+        address user,
+        uint256 amount,
+        string memory location,
+        uint256 start,
+        uint256 end,
+        uint8 status,
+        uint256 totalFunded,
+        bool payout,
+        WeatherCondition[] memory conditions,
+        Offer[] memory offers,
+        uint256 selectedOffer,
+        Investment[] memory investments
+    );
+    function getOffersLength(uint256 requestId) external view returns (uint256);
+    function getOffer(uint256 requestId, uint256 offerIndex) external view returns (
+        address expert,
+        uint256 premium,
+        uint256 timestamp
+    );
+    function getInvestmentsLength(uint256 requestId) external view returns (uint256);
+    function getInvestment(uint256 requestId, uint256 investmentIndex) external view returns (
+        address investor,
+        uint256 amount
+    );
+    function getConditionsLength(uint256 requestId) external view returns (uint256);
+    function getCondition(uint256 requestId, uint256 conditionIndex) external view returns (
+        WeatherType weatherType,
+        Operator op,
+        uint256 aggregateValue,
+        uint256 subThreshold,
+        Operator subOp
+    );
+    function getOffers(uint256 requestId) external view returns (Offer[] memory);
+    function getInvestments(uint256 requestId) external view returns (Investment[] memory);
+    function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory);
 } 
