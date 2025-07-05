@@ -77,7 +77,7 @@ export const Header = () => {
 
   return (
     <>
-      <div className="sticky top-0 navbar bg-transparent min-h-0 shrink-0 justify-between z-50 pl-12">
+      <div className="sticky top-0 navbar bg-beige-200 shadow-md min-h-0 shrink-0 justify-between z-50 pl-12">
         <div className="navbar-start w-auto lg:w-1/2">
           <div className="hidden lg:flex items-center ml-12">
             <div className="flex items-center mr-2">
