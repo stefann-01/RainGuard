@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     InsuranceManager: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
       abi: [
         {
           inputs: [
@@ -193,25 +193,6 @@ const deployedContracts = {
           type: "event",
         },
         {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "expert",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "scoreChange",
-              type: "int256",
-            },
-          ],
-          name: "ReputationUpdated",
-          type: "event",
-        },
-        {
           inputs: [
             {
               internalType: "string",
@@ -279,25 +260,6 @@ const deployedContracts = {
           name: "createRequest",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "expertReputation",
-          outputs: [
-            {
-              internalType: "int256",
-              name: "",
-              type: "int256",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -435,6 +397,11 @@ const deployedContracts = {
                   name: "timestamp",
                   type: "uint256",
                 },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
               ],
               internalType: "struct Offer[]",
               name: "",
@@ -554,6 +521,19 @@ const deployedContracts = {
           name: "renounceOwnership",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "reputation",
+          outputs: [
+            {
+              internalType: "contract Reputation",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -687,11 +667,6 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "conditionMet",
-              type: "bool",
-            },
           ],
           name: "settlePolicy",
           outputs: [],
@@ -710,6 +685,11 @@ const deployedContracts = {
               name: "premium",
               type: "uint256",
             },
+            {
+              internalType: "string",
+              name: "description",
+              type: "string",
+            },
           ],
           name: "submitOffer",
           outputs: [],
@@ -725,24 +705,6 @@ const deployedContracts = {
             },
           ],
           name: "transferOwnership",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "expert",
-              type: "address",
-            },
-            {
-              internalType: "int256",
-              name: "scoreChange",
-              type: "int256",
-            },
-          ],
-          name: "updateReputation",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -786,7 +748,6 @@ const deployedContracts = {
         selectOffer: "contracts/IInsuranceManager.sol",
         settlePolicy: "contracts/IInsuranceManager.sol",
         submitOffer: "contracts/IInsuranceManager.sol",
-        updateReputation: "contracts/IInsuranceManager.sol",
         withdrawInvestment: "contracts/IInsuranceManager.sol",
         owner: "@openzeppelin/contracts/access/Ownable.sol",
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
@@ -1225,7 +1186,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Reputation: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       abi: [
         {
           anonymous: false,

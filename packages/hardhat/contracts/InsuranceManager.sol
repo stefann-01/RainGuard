@@ -13,18 +13,20 @@ import { IInsuranceManager } from "./IInsuranceManager.sol";
 import { EventsLib } from "./EventsLib.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Reputation } from "./Reputation.sol";
 
 contract InsuranceManager is IInsuranceManager, Ownable {
     address public usdc;
+    Reputation public reputation;
 
     constructor(address initialOwner, address usdcAddress) Ownable(initialOwner) {
         usdc = usdcAddress;
+        reputation = new Reputation();
     }
     // Storage
     uint256 public requestCount;
     uint256[] public requestIds; // Track all request IDs
     mapping(uint256 => InsuranceRequest) public requests;
-    mapping(address => int256) public expertReputation;
 
     // Create a new insurance request with multiple weather conditions
     function createRequest(
@@ -59,7 +61,7 @@ contract InsuranceManager is IInsuranceManager, Ownable {
     }
 
     // Experts submit offers for a request
-    function submitOffer(uint256 requestId, uint256 premium) external {
+    function submitOffer(uint256 requestId, uint256 premium, string memory description) external {
         InsuranceRequest storage req = requests[requestId];
         require(req.user != address(0), "Request does not exist");
         require(req.status == 0, "Request not pending");
@@ -67,7 +69,8 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         Offer memory offer = Offer({
             expert: msg.sender,
             premium: premium,
-            timestamp: block.timestamp
+            timestamp: block.timestamp,
+            description: description
         });
         req.offers.push(offer);
         uint256 offerId = req.offers.length - 1;
@@ -144,30 +147,41 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         emit EventsLib.PolicyActivated(requestId, requestId);
     }
 
-    // Settle the policy after the period ends; mock oracle integration
-    function settlePolicy(uint256 requestId, bool conditionMet) external {
+    // Settle the policy after the period ends; check oracle data and handle payouts
+    function settlePolicy(uint256 requestId) external {
         InsuranceRequest storage req = requests[requestId];
         require(req.status == 3, "Policy not active");
         require(block.timestamp >= req.end, "Policy period not ended");
-        // In production, call oracle and check all conditions
-        // For now, use conditionMet as a mock result
-        bool payout = conditionMet;
-        req.payout = payout;
-        if (payout) {
+        
+        // In production, call oracle to get data for this requestId
+        // For now, we'll use a mock oracle call
+        bool conditionMet = mockOracleCall(requestId);
+        
+        req.payout = conditionMet;
+        if (conditionMet) {
             // Pay out to user from the pool in USDC
             uint256 payoutAmount = req.amount;
             require(IERC20(usdc).balanceOf(address(this)) >= payoutAmount, "Insufficient USDC balance");
             require(IERC20(usdc).transfer(req.user, payoutAmount), "Payout failed");
         }
+        
         req.status = 4; // expired
-        emit EventsLib.PolicySettled(requestId, payout);
+        emit EventsLib.PolicySettled(requestId, conditionMet);
+        
         // Update expert reputation
         address expert = req.offers[req.selectedOffer].expert;
-        if (payout) {
-            updateReputation(expert, -10); // Penalize expert for mispricing
+        if (conditionMet) {
+            reputation.updateReputation(expert, -10); // Penalize expert for mispricing
         } else {
-            updateReputation(expert, 5); // Reward expert for correct pricing
+            reputation.updateReputation(expert, 5); // Reward expert for correct pricing
         }
+    }
+
+    // Mock oracle function - in production this would call the actual oracle
+    function mockOracleCall(uint256 requestId) internal view returns (bool) {
+        // This is where you'd call the oracle contract to get data for requestId
+        // For now, return a mock result (you can make this configurable)
+        return false; // Mock: no payout
     }
 
     // Investors can withdraw their funds if policy did not default
@@ -185,12 +199,6 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         }
         require(amount > 0, "No funds to withdraw");
         require(IERC20(usdc).transfer(msg.sender, amount), "Withdrawal failed");
-    }
-
-    // Update expert reputation (simple logic)
-    function updateReputation(address expert, int256 scoreChange) public {
-        expertReputation[expert] += scoreChange;
-        emit EventsLib.ReputationUpdated(expert, scoreChange);
     }
 
     // Getter for basic InsuranceRequest fields (excluding arrays to avoid stack too deep)

@@ -18,6 +18,7 @@ struct Offer {
     address expert;
     uint256 premium;
     uint256 timestamp;
+    string description;
 }
 
 struct Investment {
@@ -54,13 +55,12 @@ interface IInsuranceManager {
         uint256 end
     ) external;
 
-    function submitOffer(uint256 requestId, uint256 premium) external;
+    function submitOffer(uint256 requestId, uint256 premium, string memory description) external;
     function selectOffer(uint256 requestId, uint256 offerId) external;
     function fundPool(uint256 requestId, uint256 amount) external;
     function payPremium(uint256 requestId, uint256 amount) external;
-    function settlePolicy(uint256 requestId, bool conditionMet) external;
+    function settlePolicy(uint256 requestId) external;
     function withdrawInvestment(uint256 requestId) external;
-    function updateReputation(address expert, int256 scoreChange) external;
 
     function getRequestBasic(uint256 requestId) external view returns (
         uint256 id,
