@@ -11,6 +11,7 @@ interface OfferModalProps {
 export const OfferModal = ({ requestId, isOpen, onClose }: OfferModalProps) => {
   const [premium, setPremium] = useState("");
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { writeContractAsync: submitOfferAsync } = useScaffoldWriteContract({
     contractName: "InsuranceManager",
@@ -19,19 +20,21 @@ export const OfferModal = ({ requestId, isOpen, onClose }: OfferModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Convert premium to USDC units (6 decimals)
+      setIsSubmitting(true);
       const premiumInUSDC = parseUnits(premium, 6);
+
       await submitOfferAsync({
         functionName: "submitOffer",
         args: [BigInt(requestId), premiumInUSDC, description],
       });
 
-      // Reset form and close modal
       setPremium("");
       setDescription("");
       onClose();
     } catch (error) {
       console.error("Error submitting offer:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -49,7 +52,7 @@ export const OfferModal = ({ requestId, isOpen, onClose }: OfferModalProps) => {
             <input
               type="number"
               placeholder="Enter premium amount"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full rounded-md focus:outline-none"
               value={premium}
               onChange={e => setPremium(e.target.value)}
               min="0"
@@ -59,11 +62,9 @@ export const OfferModal = ({ requestId, isOpen, onClose }: OfferModalProps) => {
           </div>
 
           <div className="form-control w-full mt-4">
-            <label className="label">
-              <span className="label-text">Description</span>
-            </label>
+            <label className="block text-sm font-medium mb-2 text-beige-700">Description</label>
             <textarea
-              className="textarea textarea-bordered h-24"
+              className="textarea textarea-bordered h-24 rounded-md focus:outline-none"
               placeholder="Enter offer description and terms"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -75,8 +76,12 @@ export const OfferModal = ({ requestId, isOpen, onClose }: OfferModalProps) => {
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none">
-              Submit Offer
+            <button
+              type="submit"
+              className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none"
+              disabled={isSubmitting || !premium}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Offer"}
             </button>
           </div>
         </form>
