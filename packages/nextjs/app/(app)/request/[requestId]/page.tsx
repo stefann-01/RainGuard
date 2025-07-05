@@ -21,6 +21,7 @@ import {
   WeatherCondition,
   WeatherType,
 } from "~~/app/types";
+import { OfferModal } from "~~/components/OfferModal";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
@@ -54,6 +55,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
   const { address: connectedAddress } = useAccount();
   const [fundAmount, setFundAmount] = useState("");
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
 
   // Fetch basic request data
   const { data: basicData, isLoading: basicLoading } = useScaffoldReadContract({
@@ -106,6 +108,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
     expert: offer.expert,
     premium: Number(offer.premium),
+    description: offer.description,
     timestamp: new Date(Number(offer.timestamp) * 1000),
   }));
 
@@ -391,7 +394,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                 </h2>
                 <button
                   className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
-                  onClick={() => {}}
+                  onClick={() => setIsOfferModalOpen(true)}
                 >
                   Provide Offer
                 </button>
@@ -445,6 +448,9 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
           </div>
         </div>
       </div>
+
+      {/* Add the OfferModal */}
+      <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
     </div>
   );
 }
