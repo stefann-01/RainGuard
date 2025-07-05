@@ -29,16 +29,16 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-between w-full mb-6">
       {/* Search Input */}
-      <div className="w-full sm:max-w-xl">
-        <div className="input-group w-full">
+      <div className="w-full">
+        <div className="flex flex-row items-center">
           <input
             type="text"
             placeholder="Search sensors..."
-            className="input input-bordered w-full"
+            className="input input-bordered flex-1 focus:outline-none"
             value={searchQuery}
             onChange={handleSearchChange}
           />
-          <button className="btn btn-primary btn-square">
+          <button className="btn btn-primary btn-square mx-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -58,7 +58,11 @@ export default function SearchBar({ onSearchAction, onSortAction, onShowPastActi
       </div>
       {/* Controls */}
       <div className="flex flex-row gap-2 items-center">
-        <select className="select select-bordered" onChange={handleSortChange} defaultValue="startDate">
+        <select
+          className="select select-bordered w-auto min-w-fit focus:outline-none"
+          onChange={handleSortChange}
+          defaultValue="startDate"
+        >
           <option value="startDate">Sort by Start Date</option>
           <option value="title">Sort by Title</option>
           <option value="description">Sort by Description</option>
