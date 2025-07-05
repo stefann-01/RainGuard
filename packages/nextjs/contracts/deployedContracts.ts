@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     InsuranceManager: {
-      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
@@ -319,6 +319,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "getAllRequestIds",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "",
+              type: "uint256[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -564,6 +577,25 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
+          name: "requestIds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
           name: "requests",
           outputs: [
             {
@@ -745,6 +777,7 @@ const deployedContracts = {
       inheritedFunctions: {
         createRequest: "contracts/IInsuranceManager.sol",
         fundPool: "contracts/IInsuranceManager.sol",
+        getAllRequestIds: "contracts/IInsuranceManager.sol",
         getConditions: "contracts/IInsuranceManager.sol",
         getInvestments: "contracts/IInsuranceManager.sol",
         getOffers: "contracts/IInsuranceManager.sol",
