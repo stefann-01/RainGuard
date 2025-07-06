@@ -25,23 +25,25 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
   const { writeContractAsync: writeInsuranceManagerAsync, isPending } = useScaffoldWriteContract({
     contractName: "InsuranceManager",
   });
+
+  //revert to reset after dev
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    amount: "",
-    location: "",
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
+    title: "Rain Protection for Downtown Event", // RESET: Default test title
+    description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.", // RESET: Default test description
+    amount: "5000", // RESET: Default test amount (USDC)
+    location: "Downtown District, New York, NY", // RESET: Default test location
+    startDate: new Date(Date.now() + 86400000).toISOString().split("T")[0], // RESET: Tomorrow
+    startTime: "09:00", // RESET: Default start time
+    endDate: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0], // RESET: 7 days from now
+    endTime: "18:00", // RESET: Default end time
   });
   const [conditions, setConditions] = useState<WeatherConditionForm[]>([
     {
-      weatherType: WeatherType.Rain,
+      weatherType: WeatherType.Rain, // RESET: Default weather type
       op: Operator.GreaterThan,
-      aggregateValue: 0,
-      subThreshold: 0,
-      subOp: Operator.Equal,
+      aggregateValue: 50, // RESET: Default 50mm rain
+      subThreshold: 10, // RESET: Default sub-threshold
+      subOp: Operator.GreaterThan,
     },
   ]);
 
@@ -76,24 +78,25 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
   };
 
+  //revert to reset after dev
   const resetForm = () => {
     setFormData({
-      title: "",
-      description: "",
-      amount: "",
-      location: "",
-      startDate: "",
-      startTime: "",
-      endDate: "",
-      endTime: "",
+      title: "Rain Protection for Downtown Event", // RESET: Default test title
+      description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.", // RESET: Default test description
+      amount: "5000", // RESET: Default test amount (USDC)
+      location: "Downtown District, New York, NY", // RESET: Default test location
+      startDate: new Date(Date.now() + 86400000).toISOString().split("T")[0], // RESET: Tomorrow
+      startTime: "09:00", // RESET: Default start time
+      endDate: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0], // RESET: 7 days from now
+      endTime: "18:00", // RESET: Default end time
     });
     setConditions([
       {
-        weatherType: WeatherType.Rain,
+        weatherType: WeatherType.Rain, // RESET: Default weather type
         op: Operator.GreaterThan,
-        aggregateValue: 0,
-        subThreshold: 0,
-        subOp: Operator.Equal,
+        aggregateValue: 50, // RESET: Default 50mm rain
+        subThreshold: 10, // RESET: Default sub-threshold
+        subOp: Operator.GreaterThan,
       },
     ]);
   };

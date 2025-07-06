@@ -80,6 +80,7 @@ const RequestCard = ({ requestId }: { requestId: number }) => {
   }));
 
   const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
+    id: Number(offer.id),
     expert: offer.expert,
     premium: Number(offer.premium),
     description: offer.description,

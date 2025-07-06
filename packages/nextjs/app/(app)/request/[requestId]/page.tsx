@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
 import {
   formatTimeRange,
   formatTimestamp,
@@ -24,6 +25,7 @@ import {
 import { OfferModal } from "~~/components/OfferModal";
 import { Address, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
 
 interface RequestDetailsPageProps {
   params: Promise<{
@@ -57,34 +59,60 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const [fundAmount, setFundAmount] = useState("");
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [visibleOffers, setVisibleOffers] = useState(2);
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  // Contract write hook
+  const { writeContractAsync: selectOfferAsync } = useScaffoldWriteContract({
+    contractName: "InsuranceManager",
+  });
 
   // Fetch basic request data
-  const { data: basicData, isLoading: basicLoading } = useScaffoldReadContract({
+  const {
+    data: basicData,
+    isLoading: basicLoading,
+    refetch: refetchBasicData,
+  } = useScaffoldReadContract({
     contractName: "InsuranceManager",
     functionName: "getRequestBasic",
     args: [BigInt(requestId)],
   });
 
   // Fetch conditions
-  const { data: conditions } = useScaffoldReadContract({
+  const { data: conditions, refetch: refetchConditions } = useScaffoldReadContract({
     contractName: "InsuranceManager",
     functionName: "getConditions",
     args: [BigInt(requestId)],
   });
 
   // Fetch offers
-  const { data: offers } = useScaffoldReadContract({
+  const { data: offers, refetch: refetchOffers } = useScaffoldReadContract({
     contractName: "InsuranceManager",
     functionName: "getOffers",
     args: [BigInt(requestId)],
   });
 
   // Fetch investments
-  const { data: investments } = useScaffoldReadContract({
+  const { data: investments, refetch: refetchInvestments } = useScaffoldReadContract({
     contractName: "InsuranceManager",
     functionName: "getInvestments",
     args: [BigInt(requestId)],
   });
+
+  const handleAcceptOffer = async (offerId: number) => {
+    try {
+      setIsAccepting(true);
+      await selectOfferAsync({
+        functionName: "selectOffer",
+        args: [BigInt(requestId), BigInt(offerId)],
+      });
+      // Refetch all data after successful transaction
+      await Promise.all([refetchBasicData(), refetchConditions(), refetchOffers(), refetchInvestments()]);
+    } catch (error) {
+      console.error("Error accepting offer:", error);
+    } finally {
+      setIsAccepting(false);
+    }
+  };
 
   if (basicLoading) {
     return (
@@ -106,10 +134,11 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
     subOp: Number(condition.subOp),
   }));
 
-  const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
+  const convertedOffers: Offer[] = (offers || []).map((offer: any, index) => ({
+    id: index, // Use array index as ID since contract uses array index
     expert: offer.expert,
     premium: Number(offer.premium),
-    description: offer.description || "", // Add description with fallback
+    description: offer.description || "",
     timestamp: new Date(Number(offer.timestamp) * 1000),
   }));
 
@@ -119,7 +148,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   }));
 
   // Destructure the tuple returned by getRequestBasic
-  const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOffer] =
+  const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOfferId] =
     basicData || [];
 
   const request: InsuranceRequest = {
@@ -134,12 +163,15 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
     end: new Date(Number(end || 0) * 1000),
     status: Number(status || 0),
     offers: convertedOffers,
-    selectedOffer: Number(selectedOffer || 0),
+    selectedOffer: Number(selectedOfferId), // BigInt conversion happens automatically
     investments: convertedInvestments,
     totalFunded: Number(totalFunded || 0),
     payout: payout || false,
     timestamp: new Date(),
   };
+
+  // Find the selected offer object when needed
+  const selectedOfferDetails = request.status > 0 ? convertedOffers[request.selectedOffer] : null;
 
   const formattedTime = formatTimeRange(request.start, request.end);
   const currentDate = new Date();
@@ -300,169 +332,219 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
         {/* Right Column - Pool & Offers */}
         <div className="space-y-6">
-          {/* Expert Offers */}
-          <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
-            <div className="card-body">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
-                  <span className="text-skyblue-600">👨‍💼</span>
-                  Expert Offers ({request.offers.length})
-                </h2>
-                <button
-                  className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
-                  onClick={() => setIsOfferModalOpen(true)}
-                >
-                  Provide Offer
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {request.offers.slice(0, visibleOffers).map((offer, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm hover:shadow-md transition-shadow"
+          {request.status === 0 ? (
+            <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+              <div className="card-body">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
+                    <span className="text-skyblue-600">👨‍💼</span>
+                    Expert Offers ({request.offers.length})
+                  </h2>
+                  <button
+                    className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold"
+                    onClick={() => setIsOfferModalOpen(true)}
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-bold text-beige-900 mb-2">Expert #{index + 1}</h3>
-                        <div className="bg-beige-100 rounded-lg p-2">
-                          <Address address={offer.expert} />
+                    Provide Offer
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {request.offers.slice(0, visibleOffers).map((offer, index) => (
+                    <div
+                      key={index}
+                      className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-bold text-beige-900 mb-2">Expert #{index + 1}</h3>
+                          <div className="bg-beige-100 rounded-lg p-2">
+                            <Address address={offer.expert} />
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
+                          <div className="text-sm text-beige-600">Premium</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-skyblue-600">{formatUSDCAmount(offer.premium)}</div>
-                        <div className="text-sm text-beige-600">Premium</div>
+
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/offer/${offer.id}`}
+                          className="btn border-none btn-sm rounded-lg shadow-md font-semibold flex-1 bg-beige-200 hover:bg-beige-300 text-beige-800"
+                        >
+                          View Details
+                        </Link>
+                        {isRequester && (
+                          <button
+                            className="btn border-none btn-sm rounded-lg shadow-md font-semibold flex-1 bg-skyblue-400 hover:bg-skyblue-500 text-white"
+                            onClick={() => handleAcceptOffer(index)}
+                            disabled={isAccepting}
+                          >
+                            {isAccepting ? "Accepting..." : "Accept Offer"}
+                          </button>
+                        )}
                       </div>
                     </div>
+                  ))}
 
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="text-sm text-beige-600">Offered: {formatTimestamp(offer.timestamp)}</div>
-                    </div>
-
-                    {isRequester && (
-                      <button className="btn border-none btn-sm rounded-lg shadow-md font-semibold w-full bg-skyblue-400 hover:bg-skyblue-500 text-white">
-                        Accept Offer
+                  <div className="text-center pt-2 flex justify-center gap-2">
+                    {request.offers.length > visibleOffers && (
+                      <button
+                        className="btn btn-ghost btn-sm text-skyblue-600"
+                        onClick={() => setVisibleOffers(prev => prev + 2)}
+                      >
+                        Show More Offers ({request.offers.length - visibleOffers} remaining)
+                      </button>
+                    )}
+                    {visibleOffers > 2 && (
+                      <button className="btn btn-ghost btn-sm text-orange-400" onClick={() => setVisibleOffers(2)}>
+                        Show Less
                       </button>
                     )}
                   </div>
-                ))}
 
-                <div className="text-center pt-2 flex justify-center gap-2">
-                  {request.offers.length > visibleOffers && (
-                    <button
-                      className="btn btn-ghost btn-sm text-skyblue-600"
-                      onClick={() => setVisibleOffers(prev => prev + 2)}
-                    >
-                      Show More Offers ({request.offers.length - visibleOffers} remaining)
-                    </button>
-                  )}
-                  {visibleOffers > 2 && (
-                    <button className="btn btn-ghost btn-sm text-orange-400" onClick={() => setVisibleOffers(2)}>
-                      Show Less
-                    </button>
+                  {request.offers.length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">🤝</div>
+                      <p className="text-beige-700">No offers yet.</p>
+                      <p className="text-sm text-beige-600 mt-2">Experts can submit offers to provide coverage.</p>
+                    </div>
                   )}
                 </div>
-
-                {request.offers.length === 0 && (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">🤝</div>
-                    <p className="text-beige-700">No offers yet.</p>
-                    <p className="text-sm text-beige-600 mt-2">Experts can submit offers to provide coverage.</p>
-                  </div>
-                )}
               </div>
             </div>
-          </div>
+          ) : selectedOfferDetails ? (
+            <>
+              {/* Funding Pool - Show first after offer selection */}
+              <div className="card bg-gradient-to-br from-skyblue-50 to-beige-50 border-2 border-skyblue-200 shadow-2xl rounded-2xl">
+                <div className="card-body">
+                  <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
+                    <span className="text-skyblue-600">💰</span>
+                    Funding Pool
+                  </h2>
 
-          {/* Funding Pool - Highlighted */}
-          <div className="card bg-gradient-to-br from-skyblue-50 to-beige-50 border-2 border-skyblue-200 shadow-2xl rounded-2xl">
-            <div className="card-body">
-              <h2 className="card-title text-2xl font-bold text-beige-900 mb-4 flex items-center gap-3">
-                <span className="text-skyblue-600">💰</span>
-                Funding Pool
-              </h2>
-
-              <div className="bg-white rounded-xl p-4 border border-skyblue-300 space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-skyblue-600 mb-2">{fundingProgress}%</div>
-                  <div className="w-full bg-beige-200 rounded-full h-3 mb-3">
-                    <div
-                      className="bg-gradient-to-r from-skyblue-400 to-skyblue-600 h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(fundingProgress, 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(request.totalFunded)}</div>
-                    <div className="text-sm text-beige-600">Funded</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(fundingGoal)}</div>
-                    <div className="text-sm text-beige-600">Goal</div>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <div
-                    className={`badge ${request.status === 2 ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
-                  >
-                    {request.status === 2 ? "🟢 Active" : "⚪ Inactive"}
-                  </div>
-                </div>
-
-                {/* Fund Pool Section */}
-                <div className="mt-6 pt-6 border-t border-skyblue-200">
-                  <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Fund This Pool</h3>
-
-                  {!isConnected ? (
+                  <div className="bg-white rounded-xl p-4 border border-skyblue-300 space-y-4">
                     <div className="text-center">
-                      <p className="text-beige-600 mb-3">Connect your wallet to fund this pool</p>
-                      <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
-                        Connect Wallet
-                      </button>
+                      <div className="text-4xl font-bold text-skyblue-600 mb-2">{fundingProgress}%</div>
+                      <div className="w-full bg-beige-200 rounded-full h-3 mb-3">
+                        <div
+                          className="bg-gradient-to-r from-skyblue-400 to-skyblue-600 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(fundingProgress, 100)}%` }}
+                        ></div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
+
+                    <div className="grid grid-cols-2 gap-4 text-center">
                       <div>
-                        <label className="text-sm font-medium text-beige-700 mb-2 block">
-                          Amount to contribute (ETH)
-                        </label>
-                        <EtherInput value={fundAmount} onChange={setFundAmount} placeholder="0.0" />
+                        <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(request.totalFunded)}</div>
+                        <div className="text-sm text-beige-600">Funded</div>
                       </div>
-
-                      <div className="text-center text-sm text-beige-600">
-                        <p>
-                          Remaining: {remainingFunding > 0 ? `$${remainingFunding.toLocaleString()}` : "Fully funded!"}
-                        </p>
+                      <div>
+                        <div className="text-2xl font-bold text-beige-900">{formatUSDCAmount(fundingGoal)}</div>
+                        <div className="text-sm text-beige-600">Goal</div>
                       </div>
-
-                      <button
-                        className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
-                          fundAmount && parseFloat(fundAmount) > 0 && remainingFunding > 0
-                            ? "bg-orange-400 hover:bg-orange-500 text-white"
-                            : "bg-beige-300 text-beige-600 cursor-not-allowed"
-                        }`}
-                        disabled={!fundAmount || parseFloat(fundAmount) <= 0 || remainingFunding <= 0}
-                      >
-                        {remainingFunding <= 0
-                          ? "Pool Fully Funded"
-                          : fundAmount && parseFloat(fundAmount) > 0
-                            ? "Fund Pool"
-                            : "Enter Amount"}
-                      </button>
                     </div>
-                  )}
+
+                    <div className="text-center">
+                      <div
+                        className={`badge ${request.status === 2 ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
+                      >
+                        {request.status === 2 ? "🟢 Active" : "⚪ Inactive"}
+                      </div>
+                    </div>
+
+                    {/* Fund Pool Section */}
+                    <div className="mt-6 pt-6 border-t border-skyblue-200">
+                      <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Fund This Pool</h3>
+
+                      {!isConnected ? (
+                        <div className="text-center">
+                          <p className="text-beige-600 mb-3">Connect your wallet to fund this pool</p>
+                          <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
+                            Connect Wallet
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium text-beige-700 mb-2 block">
+                              Amount to contribute (ETH)
+                            </label>
+                            <EtherInput value={fundAmount} onChange={setFundAmount} placeholder="0.0" />
+                          </div>
+
+                          <div className="text-center text-sm text-beige-600">
+                            <p>
+                              Remaining:{" "}
+                              {remainingFunding > 0 ? `$${remainingFunding.toLocaleString()}` : "Fully funded!"}
+                            </p>
+                          </div>
+
+                          <button
+                            className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
+                              fundAmount && parseFloat(fundAmount) > 0 && remainingFunding > 0
+                                ? "bg-orange-400 hover:bg-orange-500 text-white"
+                                : "bg-beige-300 text-beige-600 cursor-not-allowed"
+                            }`}
+                            disabled={!fundAmount || parseFloat(fundAmount) <= 0 || remainingFunding <= 0}
+                          >
+                            {remainingFunding <= 0
+                              ? "Pool Fully Funded"
+                              : fundAmount && parseFloat(fundAmount) > 0
+                                ? "Fund Pool"
+                                : "Enter Amount"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Add the OfferModal */}
-      <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
+              {/* Selected Offer - Show below funding pool */}
+              <div className="card bg-beige-50 border border-beige-200 shadow-xl rounded-2xl">
+                <div className="card-body">
+                  <h2 className="card-title text-2xl font-bold text-beige-900 flex items-center gap-3">
+                    <span className="text-skyblue-600">✅</span>
+                    Selected Offer
+                  </h2>
+                  <div className="bg-white rounded-xl border border-beige-300 p-4 shadow-sm">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-beige-900 mb-2">Expert</h3>
+                        <div className="bg-beige-100 rounded-lg p-2">
+                          <Address address={selectedOfferDetails.expert} />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-skyblue-600">
+                          {formatUSDCAmount(selectedOfferDetails.premium)}
+                        </div>
+                        <div className="text-sm text-beige-600">Premium</div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-beige-600">
+                      Selected: {formatTimestamp(selectedOfferDetails.timestamp)}
+                    </div>
+                    {selectedOfferDetails.description && (
+                      <div className="mt-3 p-3 bg-beige-50 rounded-lg">
+                        <p className="text-sm text-beige-700">{selectedOfferDetails.description}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+
+        {/* Add the OfferModal */}
+        <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
+      </div>
     </div>
   );
 }
