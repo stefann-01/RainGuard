@@ -54,7 +54,7 @@ export default function OfferPage() {
 
           <div className="bg-white rounded-xl p-4 mb-6">
             <h2 className="font-semibold text-beige-900 mb-2">Expert</h2>
-            <Address address={mockOffer.expert} />
+            <Address address={mockOffer.expert} format="long" />
           </div>
 
           <div className="bg-white rounded-xl p-4">
