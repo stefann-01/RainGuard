@@ -28,14 +28,12 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
   //revert to reset after dev
   const [formData, setFormData] = useState({
-    title: "Rain Protection for Downtown Event", // RESET: Default test title
-    description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.", // RESET: Default test description
-    amount: "5000", // RESET: Default test amount (USDC)
-    location: "Downtown District, New York, NY", // RESET: Default test location
-    startDate: new Date(Date.now() + 86400000).toISOString().split("T")[0], // RESET: Tomorrow
-    startTime: "09:00", // RESET: Default start time
-    endDate: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0], // RESET: 7 days from now
-    endTime: "18:00", // RESET: Default end time
+    title: "Rain Protection for Downtown Event",
+    description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.",
+    amount: "5000",
+    location: "Downtown District, New York, NY",
+    startDateTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16), // Format: "YYYY-MM-DDThh:mm"
+    endDateTime: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 16),
   });
   const [conditions, setConditions] = useState<WeatherConditionForm[]>([
     {
@@ -85,10 +83,8 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
       description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.", // RESET: Default test description
       amount: "5000", // RESET: Default test amount (USDC)
       location: "Downtown District, New York, NY", // RESET: Default test location
-      startDate: new Date(Date.now() + 86400000).toISOString().split("T")[0], // RESET: Tomorrow
-      startTime: "09:00", // RESET: Default start time
-      endDate: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0], // RESET: 7 days from now
-      endTime: "18:00", // RESET: Default end time
+      startDateTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16), // RESET: Tomorrow
+      endDateTime: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 16), // RESET: 7 days from now
     });
     setConditions([
       {
@@ -110,14 +106,14 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
 
     // Validate form data
-    if (!formData.title || !formData.amount || !formData.location || !formData.startDate || !formData.endDate) {
+    if (!formData.title || !formData.amount || !formData.location || !formData.startDateTime || !formData.endDateTime) {
       alert("Please fill in all required fields");
       return;
     }
 
     // Create the insurance request object
-    const startDateTime = new Date(`${formData.startDate}T${formData.startTime || "00:00"}`);
-    const endDateTime = new Date(`${formData.endDate}T${formData.endTime || "23:59"}`);
+    const startDateTime = new Date(formData.startDateTime);
+    const endDateTime = new Date(formData.endDateTime);
 
     // Convert conditions to contract format
     const contractConditions = conditions.map(condition => ({
@@ -242,49 +238,26 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-neutral-900">Start Date *</span>
+                    <span className="label-text font-semibold text-neutral-900">Start Date & Time *</span>
                   </label>
                   <input
-                    type="date"
-                    value={formData.startDate}
-                    onChange={e => handleInputChange("startDate", e.target.value)}
+                    type="datetime-local"
+                    value={formData.startDateTime}
+                    onChange={e => handleInputChange("startDateTime", e.target.value)}
                     className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                   />
                 </div>
 
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-neutral-900">Start Time</span>
+                    <span className="label-text font-semibold text-neutral-900">End Date & Time *</span>
                   </label>
                   <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={e => handleInputChange("startTime", e.target.value)}
+                    type="datetime-local"
+                    value={formData.endDateTime}
+                    onChange={e => handleInputChange("endDateTime", e.target.value)}
                     className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">
-                    <span className="label-text font-semibold text-neutral-900">End Date *</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.endDate}
-                    onChange={e => handleInputChange("endDate", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">
-                    <span className="label-text font-semibold text-neutral-900">End Time</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={e => handleInputChange("endTime", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
+                    min={formData.startDateTime} // Prevent end time before start time
                   />
                 </div>
               </div>
