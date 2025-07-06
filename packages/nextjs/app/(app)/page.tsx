@@ -5,8 +5,15 @@ import Link from "next/link";
 import { formatTimeRange, getWeatherTypeIcon } from "../utils/format.utils";
 import SearchBar from "./_components/SearchBar";
 import StatusBadge from "./_components/StatusBadge";
-import { mockData } from "./mockdata";
-import { DEFAULT_SENSOR_STATUS, SensorStatus } from "~~/app/types";
+import {
+  DEFAULT_SENSOR_STATUS,
+  InsuranceRequest,
+  Investment,
+  Offer,
+  SensorStatus,
+  WeatherCondition,
+} from "~~/app/types";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
 // Helper function to convert numeric status to string
 const getStatusString = (numericStatus: number): SensorStatus => {
@@ -16,14 +23,137 @@ const getStatusString = (numericStatus: number): SensorStatus => {
     case 1:
       return "Funding";
     case 2:
-      return "Active";
+      return "Premium Payment";
     case 3:
-      return "Expired";
+      return "Active";
     case 4:
-      return "Cancelled";
+      return "Expired";
     default:
       return DEFAULT_SENSOR_STATUS;
   }
+};
+
+// Component to render a single request card
+const RequestCard = ({ requestId }: { requestId: number }) => {
+  const { data: basicData } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getRequestBasic",
+    args: [BigInt(requestId)],
+  });
+
+  const { data: conditions } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getConditions",
+    args: [BigInt(requestId)],
+  });
+
+  const { data: offers } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getOffers",
+    args: [BigInt(requestId)],
+  });
+
+  const { data: investments } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getInvestments",
+    args: [BigInt(requestId)],
+  });
+
+  if (!basicData) {
+    return (
+      <div className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl">
+        <div className="card-body py-3 px-4">
+          <div className="loading loading-spinner loading-sm"></div>
+          <p className="text-sm text-beige-700">Loading request {requestId}...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Convert Solidity data to TypeScript types
+  const convertedConditions: WeatherCondition[] = (conditions || []).map((condition: any) => ({
+    weatherType: Number(condition.weatherType),
+    op: Number(condition.op),
+    aggregateValue: Number(condition.aggregateValue),
+    subThreshold: Number(condition.subThreshold),
+    subOp: Number(condition.subOp),
+  }));
+
+  const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
+    id: Number(offer.id),
+    expert: offer.expert,
+    premium: Number(offer.premium),
+    description: offer.description,
+    timestamp: new Date(Number(offer.timestamp) * 1000),
+  }));
+
+  const convertedInvestments: Investment[] = (investments || []).map((investment: any) => ({
+    investor: investment.investor,
+    amount: Number(investment.amount),
+  }));
+
+  // Destructure the tuple returned by getRequestBasic
+  const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOffer] =
+    basicData;
+
+  const request: InsuranceRequest = {
+    id: Number(id),
+    title,
+    description,
+    user,
+    amount: Number(amount),
+    conditions: convertedConditions,
+    location,
+    start: new Date(Number(start) * 1000),
+    end: new Date(Number(end) * 1000),
+    status: Number(status),
+    offers: convertedOffers,
+    selectedOffer: Number(selectedOffer),
+    investments: convertedInvestments,
+    totalFunded: Number(totalFunded),
+    payout,
+    timestamp: new Date(),
+  };
+
+  const formattedTime = formatTimeRange(request.start, request.end);
+  const currentDate = new Date();
+  const isPast = request.start < currentDate;
+  const isEnded = request.end < currentDate;
+  const statusString = getStatusString(request.status);
+
+  return (
+    <div className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative">
+      <div className="card-body py-3 px-4">
+        <h2 className="card-title text-lg mb-1 text-beige-900">
+          {request.conditions.length > 0 && getWeatherTypeIcon(request.conditions[0].weatherType)} {request.title}
+        </h2>
+        <p className="text-sm text-beige-700 mb-2 line-clamp-3">{request.description || "No description available"}</p>
+
+        <div className="mb-2">
+          <p className="text-sm">
+            <span className="font-semibold text-orange-600">{isPast ? "Started:" : "Starting:"}</span>{" "}
+            <span className="text-beige-800">{formattedTime.startDate}</span>
+          </p>
+          <p className="text-sm">
+            <span className="font-semibold text-orange-600">Duration:</span>{" "}
+            <span className="text-beige-800">{formattedTime.lastingPeriod}</span>
+          </p>
+        </div>
+
+        <div className="flex justify-between items-end mt-3">
+          <StatusBadge
+            status={isEnded ? "Expired" : statusString}
+            className="h-10 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-4"
+          />
+          <Link href={`/request/${request.id}`}>
+            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm h-10 rounded-lg shadow-md font-semibold">
+              View Details
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default function HomePage() {
@@ -31,40 +161,20 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState("startDate");
   const [showPast, setShowPast] = useState(false);
 
-  // Filter and sort data
-  const filteredAndSortedData = useMemo(() => {
-    const currentDate = new Date();
+  // Get all request IDs from the contract
+  const { data: requestIds, isLoading } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getAllRequestIds",
+  });
 
-    // Filter by search query and past/future
-    const filtered = mockData.filter(request => {
-      const matchesSearch =
-        request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (request.description && request.description.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter and sort request IDs based on search criteria
+  const filteredRequestIds = useMemo(() => {
+    if (!requestIds || isLoading) return [];
 
-      if (showPast) {
-        return matchesSearch; // Show all if past is enabled
-      } else {
-        return matchesSearch && request.start > currentDate; // Only future if past is disabled
-      }
-    });
-
-    // Sort data
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "title":
-          return a.title.localeCompare(b.title);
-        case "description":
-          const aDesc = a.description || "";
-          const bDesc = b.description || "";
-          return aDesc.localeCompare(bDesc);
-        case "startDate":
-        default:
-          return a.start.getTime() - b.start.getTime();
-      }
-    });
-
-    return filtered;
-  }, [searchQuery, sortBy, showPast]);
+    // For now, we'll show all requests since filtering requires fetching each request's data
+    // In a production app, you might want to implement server-side filtering or caching
+    return requestIds.map((id: bigint) => Number(id));
+  }, [requestIds, isLoading, searchQuery, sortBy, showPast]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -78,11 +188,16 @@ export default function HomePage() {
     setShowPast(showPast);
   };
 
-  // Check if request has ended
-  const hasEnded = (request: any) => {
-    const currentDate = new Date();
-    return request.end < currentDate;
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading loading-spinner loading-lg"></div>
+          <p className="mt-4 text-beige-700">Loading insurance requests...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -105,57 +220,13 @@ export default function HomePage() {
       {/* Cards Grid */}
       <div className="px-24 pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {filteredAndSortedData.map(request => {
-            const formattedTime = formatTimeRange(request.start, request.end);
-            const currentDate = new Date();
-            const isPast = request.start < currentDate;
-            const isEnded = hasEnded(request);
-            const statusString = getStatusString(request.status);
-
-            return (
-              <div
-                key={request.id}
-                className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative"
-              >
-                <div className="card-body py-3 px-4">
-                  <h2 className="card-title text-lg mb-1 text-beige-900">
-                    {request.conditions.length > 0 && getWeatherTypeIcon(request.conditions[0].weatherType)}{" "}
-                    {request.title}
-                  </h2>
-                  <p className="text-sm text-beige-700 mb-2 line-clamp-3">
-                    {request.description || "No description available"}
-                  </p>
-
-                  <div className="mb-2">
-                    <p className="text-sm">
-                      <span className="font-semibold text-orange-600">{isPast ? "Started:" : "Starting:"}</span>{" "}
-                      <span className="text-beige-800">{formattedTime.startDate}</span>
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-semibold text-orange-600">Duration:</span>{" "}
-                      <span className="text-beige-800">{formattedTime.lastingPeriod}</span>
-                    </p>
-                  </div>
-
-                  <div className="flex justify-between items-end mt-3">
-                    <StatusBadge
-                      status={isEnded ? "Expired" : statusString}
-                      className="h-10 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-4"
-                    />
-                    <Link href={`/${request.id}`}>
-                      <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm h-10 rounded-lg shadow-md font-semibold">
-                        View Details
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {filteredRequestIds.map(requestId => (
+            <RequestCard key={requestId} requestId={requestId} />
+          ))}
         </div>
 
         {/* No results message */}
-        {filteredAndSortedData.length === 0 && (
+        {filteredRequestIds.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <p className="text-beige-700 text-lg">No insurance requests found matching your criteria.</p>
           </div>

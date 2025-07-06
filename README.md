@@ -1,39 +1,81 @@
-# 🌧️ RainGuard - On-Chain Weather Insurance Protocol
+# 🌧️ RainGuard
 
-RainGuard is a decentralized weather insurance protocol built on Ethereum using Chainlink Functions to fetch real-time weather data from AccuWeather API.
+**Decentralized Peer-to-Peer Weather Insurance Protocol**
+
+RainGuard is a decentralized insurance protocol that uses trusted weather data to trigger automatic payouts for climate-related risks. It enables anyone to build tailored protection against unpredictable weather events like droughts, heatwaves, or storms, without dealing with traditional insurers or slow, manual claims processes.
 
 ## 🚀 Features
 
-- **Real-time Weather Data**: Fetch current weather conditions using Chainlink Functions
-- **Smart Contract Insurance**: Automated insurance payouts based on weather conditions
-- **Decentralized Oracle**: Reliable weather data through Chainlink's decentralized network
-- **Web3 Frontend**: Modern React/Next.js interface for interacting with the protocol
+- **Weather-Based Insurance**: Create custom insurance policies based on specific weather conditions, locations, and timeframes
+- **Expert-Driven Pricing**: Risk experts compete to offer the best premium rates through transparent bidding
+- **Automated Payouts**: Smart contracts automatically trigger payouts when weather conditions are met
+- **Gasless Transactions**: Circle Paymaster integration enables gasless transactions paid in USDT
+- **Reputation System**: Experts build reputation scores based on their risk assessment accuracy
+- **Real-Time Data**: Chainlink Functions integration with AccuWeather for reliable weather data
+- **User-Friendly Interface**: Clean, intuitive UI designed for users with no blockchain experience
 
 ## 🏗️ Architecture
 
 ### Smart Contracts
-- `WeatherConsumer.sol` - Main contract for fetching weather data via Chainlink Functions
-- Weather insurance logic for automated payouts
-- Integration with AccuWeather API through Chainlink Functions
+
+The protocol consists of several smart contracts deployed on **Mantle** and **Zircuit**:
+
+- **`InsuranceManager`**: Core contract handling the entire insurance lifecycle
+- **`Reputation`**: Manages expert reputation scores and performance tracking
+- **`EventsLib`**: Event definitions for contract interactions
+- **`MockUSDC`**: Test USDC token for development
+- **`OracleMock`**: Mock oracle for testing weather data integration
 
 ### Frontend
-- Next.js application with Web3 integration
-- Real-time weather data display
-- Insurance policy management interface
 
-## 📋 Prerequisites
+Built with modern web technologies:
+- **Next.js 15** (App Router) with TypeScript
+- **Scaffold-ETH 2** hooks for seamless blockchain interactions
+- **RainbowKit** for wallet connections
+- **Tailwind CSS** with DaisyUI for styling
+- **Wagmi** for Ethereum interactions
 
-- Node.js (v18 or higher)
+## 📋 Insurance Lifecycle
+
+1. **Request Creation**: Users create insurance requests with coverage amount, location, timeframe, and weather conditions
+2. **Expert Bidding**: Risk experts submit offers with premiums and risk assessments
+3. **Offer Selection**: Users select the best offer based on premium and expert reputation
+4. **Pool Funding**: Investors fund the payout pool with USDC
+5. **Premium Payment**: Users pay premiums, automatically distributed to experts (5%) and investors (95%)
+6. **Policy Activation**: Smart contract activates the policy for the specified timeframe
+7. **Automatic Settlement**: Chainlink Functions fetch weather data and trigger payouts if conditions are met
+8. **Reputation Update**: Expert reputation scores are updated based on payout accuracy
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Solidity** ^0.8.0
+- **Hardhat** for development and testing
+- **OpenZeppelin** contracts for security
+- **Chainlink Functions** for oracle integration
+- **Circle Paymaster** for gasless transactions
+
+### Frontend
+- **Next.js** 15 with App Router
+- **TypeScript** for type safety
+- **Wagmi** + **RainbowKit** for Web3 integration
+- **Tailwind CSS** + **DaisyUI** for styling
+- **React Query** for data fetching
+- **Zustand** for state management
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js >= 20.18.3
 - Yarn package manager
-- MetaMask or other Web3 wallet
-- Sepolia testnet ETH
-- AccuWeather API key
+- Git
 
-## 🛠️ Installation
+### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone <repository-url>
    cd RainGuard
    ```
 
@@ -44,101 +86,132 @@ RainGuard is a decentralized weather insurance protocol built on Ethereum using 
 
 3. **Set up environment variables**
    ```bash
-   cd packages/hardhat
-   # Create .env file with your private key
-   echo "__RUNTIME_DEPLOYER_PRIVATE_KEY=your_private_key_here" > .env
+   cp packages/hardhat/.env.example packages/hardhat/.env
+   cp packages/nextjs/.env.example packages/nextjs/.env
    ```
 
-## 🔧 Configuration
-
-### Chainlink Functions Setup
-
-1. **Create Subscription**
-   - Go to [Chainlink Functions](https://functions.chain.link)
-   - Connect your wallet (Sepolia network)
-   - Create a new subscription
-   - Fund it with LINK tokens
-
-2. **Upload Secrets**
-   - Add your AccuWeather API key as a secret
-   - Configure the secret name as `apiKey`
-
-3. **Deploy Contract**
+4. **Start local development**
    ```bash
-   cd packages/hardhat
-   yarn hardhat run scripts/deploy-fresh-weather.ts --network sepolia
+   # Start local blockchain
+   yarn chain
+   
+   # Deploy contracts (in a new terminal)
+   yarn deploy
+   
+   # Start frontend (in a new terminal)
+   yarn start
    ```
 
-4. **Add Consumer**
-   - Add your deployed contract address to the subscription
-   - Update the contract with your subscription ID
+5. **Access the application**
+   - Frontend: http://localhost:3000
+   - Debug interface: http://localhost:3000/debug
 
-## 🚀 Usage
+## 📖 Usage
 
-### Deploy Smart Contracts
+### For Users
+
+1. **Create Insurance Request**
+   - Navigate to the "Create Request" page
+   - Define weather conditions (rain, wind, temperature, etc.)
+   - Set coverage amount, location, and timeframe
+   - Submit your request
+
+2. **Review Expert Offers**
+   - Browse offers from risk experts
+   - Compare premiums and reputation scores
+   - Select the best offer for your needs
+
+3. **Pay Premium**
+   - Once the pool is funded, pay your premium
+   - Premium is automatically distributed to experts and investors
+
+4. **Monitor Policy**
+   - Track your policy status in real-time
+   - View countdown to policy expiry
+   - Receive automatic payout if conditions are met
+
+### For Experts
+
+1. **Submit Offers**
+   - Review open insurance requests
+   - Analyze weather risks and historical data
+   - Submit competitive premium offers with detailed assessments
+
+2. **Build Reputation**
+   - Earn reputation points for accurate risk assessments
+   - Avoid penalties for mispriced risks
+   - Establish credibility in the ecosystem
+
+### For Investors
+
+1. **Fund Pools**
+   - Browse available insurance pools
+   - Contribute USDC to fund payouts
+   - Earn returns if no payout is triggered
+
+2. **Monitor Investments**
+   - Track funding progress in real-time
+   - View potential returns and risks
+   - Withdraw funds after policy settlement
+
+## 🔧 Development
+
+### Available Scripts
+
 ```bash
-cd packages/hardhat
-yarn hardhat run scripts/deploy-fresh-weather.ts --network sepolia
+# Blockchain
+yarn chain          # Start local blockchain
+yarn deploy         # Deploy contracts
+yarn test           # Run tests
+yarn compile        # Compile contracts
+
+# Frontend
+yarn start          # Start development server
+yarn build          # Build for production
+yarn lint           # Run linter
+yarn format         # Format code
+
+# Deployment
+yarn vercel         # Deploy to Vercel
+yarn ipfs           # Deploy to IPFS
 ```
 
-### Request Weather Data
-```bash
-yarn hardhat run scripts/request-weather-fresh.ts --network sepolia
-```
+### Contract Functions
 
-### Start Frontend
-```bash
-cd packages/nextjs
-yarn dev
-```
+#### Core Functions
+- `createRequest()`: Create new insurance request
+- `submitOffer()`: Submit expert offer
+- `selectOffer()`: Select winning offer
+- `fundPool()`: Fund insurance pool
+- `payPremium()`: Pay insurance premium
+- `settlePolicy()`: Settle policy with weather data
 
-## 📁 Project Structure
+#### Getter Functions
+- `getRequestBasic()`: Get basic request information
+- `getOffers()`: Get all offers for a request
+- `getOfferById()`: Get specific offer details
+- `getInvestments()`: Get pool investments
+- `getConditions()`: Get weather conditions
+- `getAllRequestIds()`: Get all request IDs
 
-```
-RainGuard/
-├── packages/
-│   ├── hardhat/           # Smart contracts & deployment
-│   │   ├── contracts/     # Solidity contracts
-│   │   ├── deploy/        # Deployment scripts
-│   │   └── scripts/       # Utility scripts
-│   └── nextjs/           # Frontend application
-│       ├── app/          # Next.js app directory
-│       ├── components/   # React components
-│       └── services/     # Web3 services
-├── README.md
-└── package.json
-```
+## 🔒 Security
 
-## 🔗 Chainlink Functions Flow
+- **OpenZeppelin**: Industry-standard security contracts
+- **Comprehensive Testing**: Full test coverage for all contracts
+- **Access Control**: Role-based permissions and ownership controls
+- **Oracle Security**: Chainlink Functions for reliable data feeds
+- **Gas Optimization**: Efficient contract design for cost-effective operations
 
-1. **Request Initiation**: Smart contract calls `sendRequest()`
-2. **Off-chain Execution**: DON nodes execute JavaScript code
-3. **API Call**: Fetch weather data from AccuWeather
-4. **Response Processing**: Parse and format data
-5. **On-chain Update**: Contract state updated with weather data
+## 🌐 Networks
 
-## 🧪 Testing
+### Mainnet
+- **Mantle**
+- **Zircuit**
 
-```bash
-cd packages/hardhat
-yarn hardhat test
-```
+### Testnet
+- **Mantle Testnet**
+- **Local Hardhat**
 
-## 📝 License
+---
 
-This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.
-
-## 🤝 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## ⚠️ Security
-
-- Never commit private keys or API keys
-- Use environment variables for sensitive data
-- Test thoroughly on testnets before mainnet deployment
-- Follow security best practices for smart contract development
-
-## 📞 Support
-
-For questions or support, please open an issue on GitHub or contact the development team.
+**RainGuard** - Insurance without middlemen, powered by data and governed by its participants.

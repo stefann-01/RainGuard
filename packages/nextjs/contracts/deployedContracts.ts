@@ -193,25 +193,6 @@ const deployedContracts = {
           type: "event",
         },
         {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "expert",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "int256",
-              name: "scoreChange",
-              type: "int256",
-            },
-          ],
-          name: "ReputationUpdated",
-          type: "event",
-        },
-        {
           inputs: [
             {
               internalType: "string",
@@ -279,25 +260,6 @@ const deployedContracts = {
           name: "createRequest",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "expertReputation",
-          outputs: [
-            {
-              internalType: "int256",
-              name: "",
-              type: "int256",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -415,11 +377,21 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "offerId",
+              type: "uint256",
+            },
           ],
-          name: "getOffers",
+          name: "getOfferById",
           outputs: [
             {
               components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
                 {
                   internalType: "address",
                   name: "expert",
@@ -434,6 +406,57 @@ const deployedContracts = {
                   internalType: "uint256",
                   name: "timestamp",
                   type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+              ],
+              internalType: "struct Offer",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "getOffers",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
                 },
               ],
               internalType: "struct Offer[]",
@@ -511,7 +534,7 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "selectedOffer",
+              name: "selectedOfferId",
               type: "uint256",
             },
           ],
@@ -554,6 +577,19 @@ const deployedContracts = {
           name: "renounceOwnership",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "reputation",
+          outputs: [
+            {
+              internalType: "contract Reputation",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -644,9 +680,36 @@ const deployedContracts = {
               type: "uint8",
             },
             {
-              internalType: "uint256",
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+              ],
+              internalType: "struct Offer",
               name: "selectedOffer",
-              type: "uint256",
+              type: "tuple",
             },
             {
               internalType: "uint256",
@@ -687,11 +750,6 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
-            {
-              internalType: "bool",
-              name: "conditionMet",
-              type: "bool",
-            },
           ],
           name: "settlePolicy",
           outputs: [],
@@ -710,6 +768,11 @@ const deployedContracts = {
               name: "premium",
               type: "uint256",
             },
+            {
+              internalType: "string",
+              name: "description",
+              type: "string",
+            },
           ],
           name: "submitOffer",
           outputs: [],
@@ -725,24 +788,6 @@ const deployedContracts = {
             },
           ],
           name: "transferOwnership",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "expert",
-              type: "address",
-            },
-            {
-              internalType: "int256",
-              name: "scoreChange",
-              type: "int256",
-            },
-          ],
-          name: "updateReputation",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -780,13 +825,13 @@ const deployedContracts = {
         getAllRequestIds: "contracts/IInsuranceManager.sol",
         getConditions: "contracts/IInsuranceManager.sol",
         getInvestments: "contracts/IInsuranceManager.sol",
+        getOfferById: "contracts/IInsuranceManager.sol",
         getOffers: "contracts/IInsuranceManager.sol",
         getRequestBasic: "contracts/IInsuranceManager.sol",
         payPremium: "contracts/IInsuranceManager.sol",
         selectOffer: "contracts/IInsuranceManager.sol",
         settlePolicy: "contracts/IInsuranceManager.sol",
         submitOffer: "contracts/IInsuranceManager.sol",
-        updateReputation: "contracts/IInsuranceManager.sol",
         withdrawInvestment: "contracts/IInsuranceManager.sol",
         owner: "@openzeppelin/contracts/access/Ownable.sol",
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",

@@ -15,9 +15,11 @@ struct WeatherCondition {
 }
 
 struct Offer {
+    uint256 id;
     address expert;
     uint256 premium;
     uint256 timestamp;
+    string description;
 }
 
 struct Investment {
@@ -37,7 +39,7 @@ struct InsuranceRequest {
     uint256 end; // unix timestamp
     uint8 status; // 0: pending, 1: funding, 2: premium, 3: active, 4: expired, 5: cancelled
     Offer[] offers;
-    uint256 selectedOffer; // offer index
+    Offer selectedOffer; // full selected offer object
     Investment[] investments;
     uint256 totalFunded;
     bool payout; // true if payout was made
@@ -54,13 +56,12 @@ interface IInsuranceManager {
         uint256 end
     ) external;
 
-    function submitOffer(uint256 requestId, uint256 premium) external;
+    function submitOffer(uint256 requestId, uint256 premium, string memory description) external;
     function selectOffer(uint256 requestId, uint256 offerId) external;
     function fundPool(uint256 requestId, uint256 amount) external;
     function payPremium(uint256 requestId, uint256 amount) external;
-    function settlePolicy(uint256 requestId, bool conditionMet) external;
+    function settlePolicy(uint256 requestId) external;
     function withdrawInvestment(uint256 requestId) external;
-    function updateReputation(address expert, int256 scoreChange) external;
 
     function getRequestBasic(uint256 requestId) external view returns (
         uint256 id,
@@ -74,9 +75,10 @@ interface IInsuranceManager {
         uint8 status,
         uint256 totalFunded,
         bool payout,
-        uint256 selectedOffer
+        uint256 selectedOfferId
     );
     function getOffers(uint256 requestId) external view returns (Offer[] memory);
+    function getOfferById(uint256 requestId, uint256 offerId) external view returns (Offer memory);
     function getInvestments(uint256 requestId) external view returns (Investment[] memory);
     function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory);
     function getAllRequestIds() external view returns (uint256[] memory);

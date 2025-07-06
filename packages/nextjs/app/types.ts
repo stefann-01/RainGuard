@@ -1,4 +1,4 @@
-export const SENSOR_STATUS_OPTIONS = ["Pending", "Funding", "Active", "Expired", "Cancelled"] as const;
+export const SENSOR_STATUS_OPTIONS = ["Pending", "Funding", "Premium Payment", "Active", "Expired"] as const;
 
 export type SensorStatus = (typeof SENSOR_STATUS_OPTIONS)[number];
 
@@ -45,9 +45,9 @@ export interface InsuranceRequest {
   location: string;
   start: Date; // Changed from number to Date
   end: Date; // Changed from number to Date
-  status: number; // 0: pending, 1: funding, 2: active, 3: expired, 4: cancelled
+  status: number; // 0: pending, 1: funding, 2: premium payment phase, 3: active, 4: expired
   offers: Offer[];
-  selectedOffer: number; // offer index
+  selectedOffer: number; // ID of the selected offer
   investments: Investment[];
   totalFunded: number;
   payout: boolean;
@@ -55,8 +55,10 @@ export interface InsuranceRequest {
 }
 
 export interface Offer {
+  id: number;
   expert: string;
   premium: number;
+  description: string; // Description of the offer terms and conditions
   timestamp: Date; // Changed back to Date for frontend convenience
 }
 

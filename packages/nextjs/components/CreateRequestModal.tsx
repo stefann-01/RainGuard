@@ -25,23 +25,23 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
   const { writeContractAsync: writeInsuranceManagerAsync, isPending } = useScaffoldWriteContract({
     contractName: "InsuranceManager",
   });
+
+  //revert to reset after dev
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     amount: "",
     location: "",
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
+    startDateTime: "",
+    endDateTime: "",
   });
   const [conditions, setConditions] = useState<WeatherConditionForm[]>([
     {
-      weatherType: WeatherType.Rain,
+      weatherType: WeatherType.Rain, // RESET: Default weather type
       op: Operator.GreaterThan,
-      aggregateValue: 0,
-      subThreshold: 0,
-      subOp: Operator.Equal,
+      aggregateValue: 0, // RESET: Default 50mm rain
+      subThreshold: 10, // RESET: Default sub-threshold
+      subOp: Operator.GreaterThan,
     },
   ]);
 
@@ -76,24 +76,23 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
   };
 
+  //revert to reset after dev
   const resetForm = () => {
     setFormData({
       title: "",
       description: "",
       amount: "",
       location: "",
-      startDate: "",
-      startTime: "",
-      endDate: "",
-      endTime: "",
+      startDateTime: "",
+      endDateTime: "",
     });
     setConditions([
       {
-        weatherType: WeatherType.Rain,
+        weatherType: WeatherType.Rain, // RESET: Default weather type
         op: Operator.GreaterThan,
-        aggregateValue: 0,
-        subThreshold: 0,
-        subOp: Operator.Equal,
+        aggregateValue: 0, // RESET: Default 50mm rain
+        subThreshold: 10, // RESET: Default sub-threshold
+        subOp: Operator.GreaterThan,
       },
     ]);
   };
@@ -107,14 +106,14 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
     }
 
     // Validate form data
-    if (!formData.title || !formData.amount || !formData.location || !formData.startDate || !formData.endDate) {
+    if (!formData.title || !formData.amount || !formData.location || !formData.startDateTime || !formData.endDateTime) {
       alert("Please fill in all required fields");
       return;
     }
 
     // Create the insurance request object
-    const startDateTime = new Date(`${formData.startDate}T${formData.startTime || "00:00"}`);
-    const endDateTime = new Date(`${formData.endDate}T${formData.endTime || "23:59"}`);
+    const startDateTime = new Date(formData.startDateTime);
+    const endDateTime = new Date(formData.endDateTime);
 
     // Convert conditions to contract format
     const contractConditions = conditions.map(condition => ({
@@ -155,7 +154,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
       <div className="w-full h-full flex items-center justify-center py-8 overflow-y-auto">
         <div className="modal-box max-w-4xl max-h-[calc(100vh-8rem)] bg-beige-50 border border-beige-200 shadow-2xl">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-3xl font-bold text-beige-900 flex items-center gap-3">
+            <h3 className="text-3xl font-bold text-neutral-900 flex items-center gap-3">
               <span className="text-skyblue-600">🌦️</span>
               Create Insurance Request
             </h3>
@@ -171,8 +170,8 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
           {!isConnected ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🔐</div>
-              <h3 className="text-2xl font-bold text-beige-900 mb-4">Connect Your Wallet</h3>
-              <p className="text-beige-700 mb-6">You need to connect your wallet to create an insurance request.</p>
+              <h3 className="text-2xl font-bold text-neutral-900 mb-4">Connect Your Wallet</h3>
+              <p className="text-neutral-700 mb-6">You need to connect your wallet to create an insurance request.</p>
               <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-lg rounded-lg shadow-md font-semibold">
                 Connect Wallet
               </button>
@@ -183,26 +182,26 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-beige-900">Title *</span>
+                    <span className="label-text font-semibold text-neutral-900">Title *</span>
                   </label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={e => handleInputChange("title", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                     placeholder="e.g., Downtown Rain Protection"
                   />
                 </div>
 
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-beige-900">Coverage Amount (USD) *</span>
+                    <span className="label-text font-semibold text-neutral-900">Coverage Amount (USDC) *</span>
                   </label>
                   <input
                     type="number"
                     value={formData.amount}
                     onChange={e => handleInputChange("amount", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                     placeholder="5000"
                     min="0"
                   />
@@ -211,12 +210,12 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
               <div>
                 <label className="label">
-                  <span className="label-text font-semibold text-beige-900">Description</span>
+                  <span className="label-text font-semibold text-neutral-900">Description</span>
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={e => handleInputChange("description", e.target.value)}
-                  className="textarea textarea-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                  className="textarea textarea-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                   placeholder="Describe your insurance needs..."
                   rows={3}
                 />
@@ -224,13 +223,13 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
               <div>
                 <label className="label">
-                  <span className="label-text font-semibold text-beige-900">Location *</span>
+                  <span className="label-text font-semibold text-neutral-900">Location *</span>
                 </label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={e => handleInputChange("location", e.target.value)}
-                  className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                  className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                   placeholder="e.g., Downtown District, New York, NY"
                 />
               </div>
@@ -239,49 +238,26 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-beige-900">Start Date *</span>
+                    <span className="label-text font-semibold text-neutral-900">Start Date & Time *</span>
                   </label>
                   <input
-                    type="date"
-                    value={formData.startDate}
-                    onChange={e => handleInputChange("startDate", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                    type="datetime-local"
+                    value={formData.startDateTime}
+                    onChange={e => handleInputChange("startDateTime", e.target.value)}
+                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                   />
                 </div>
 
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-beige-900">Start Time</span>
+                    <span className="label-text font-semibold text-neutral-900">End Date & Time *</span>
                   </label>
                   <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={e => handleInputChange("startTime", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">
-                    <span className="label-text font-semibold text-beige-900">End Date *</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.endDate}
-                    onChange={e => handleInputChange("endDate", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">
-                    <span className="label-text font-semibold text-beige-900">End Time</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={e => handleInputChange("endTime", e.target.value)}
-                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                    type="datetime-local"
+                    value={formData.endDateTime}
+                    onChange={e => handleInputChange("endDateTime", e.target.value)}
+                    className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
+                    min={formData.startDateTime} // Prevent end time before start time
                   />
                 </div>
               </div>
@@ -290,7 +266,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <label className="label">
-                    <span className="label-text font-semibold text-beige-900">Weather Conditions *</span>
+                    <span className="label-text font-semibold text-neutral-900">Weather Conditions *</span>
                   </label>
                   <button
                     type="button"
@@ -305,7 +281,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
                   {conditions.map((condition, index) => (
                     <div key={index} className="card bg-white border border-beige-300 p-4">
                       <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-semibold text-beige-900 flex items-center gap-2">
+                        <h4 className="font-semibold text-neutral-900 flex items-center gap-2">
                           {getWeatherTypeIcon(condition.weatherType)} Condition {index + 1}
                         </h4>
                         {conditions.length > 1 && (
@@ -322,12 +298,12 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="label">
-                            <span className="label-text text-sm text-beige-700">Weather Type</span>
+                            <span className="label-text text-sm text-neutral-700">Weather Type</span>
                           </label>
                           <select
                             value={condition.weatherType}
                             onChange={e => handleConditionChange(index, "weatherType", parseInt(e.target.value))}
-                            className="select select-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                            className="select select-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                           >
                             <option value={WeatherType.Rain}>🌧️ Rain</option>
                             <option value={WeatherType.Wind}>💨 Wind</option>
@@ -339,12 +315,12 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
                         <div>
                           <label className="label">
-                            <span className="label-text text-sm text-beige-700">Operator</span>
+                            <span className="label-text text-sm text-neutral-700">Operator</span>
                           </label>
                           <select
                             value={condition.op}
                             onChange={e => handleConditionChange(index, "op", parseInt(e.target.value))}
-                            className="select select-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                            className="select select-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                           >
                             <option value={Operator.GreaterThan}>&gt; Greater Than</option>
                             <option value={Operator.LessThan}>&lt; Less Than</option>
@@ -354,7 +330,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
                         <div>
                           <label className="label">
-                            <span className="label-text text-sm text-beige-700">Value</span>
+                            <span className="label-text text-sm text-neutral-700">Value</span>
                           </label>
                           <input
                             type="number"
@@ -362,7 +338,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
                             onChange={e =>
                               handleConditionChange(index, "aggregateValue", parseFloat(e.target.value) || 0)
                             }
-                            className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0"
+                            className="input input-bordered w-full bg-white border-beige-300 focus:border-skyblue-400 rounded-md focus:outline-none focus:ring-0 text-neutral-900"
                             placeholder="50"
                             min="0"
                           />
@@ -375,7 +351,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
               {/* Requester Info */}
               <div className="bg-skyblue-50 rounded-xl p-4 border border-skyblue-200">
-                <h4 className="font-semibold text-beige-900 mb-2">Requester Information</h4>
+                <h4 className="font-semibold text-neutral-900 mb-2">Requester Information</h4>
                 <Address address={connectedAddress!} format="long" />
               </div>
 
