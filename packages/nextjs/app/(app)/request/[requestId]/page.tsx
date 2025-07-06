@@ -22,8 +22,9 @@ import {
   WeatherCondition,
   WeatherType,
 } from "~~/app/types";
+import { FundingModal } from "~~/components/FundingModal";
 import { OfferModal } from "~~/components/OfferModal";
-import { Address, EtherInput } from "~~/components/scaffold-eth";
+import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
 
@@ -56,10 +57,10 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const requestId = resolvedParams.requestId;
 
   const { address: connectedAddress } = useAccount();
-  const [fundAmount, setFundAmount] = useState("");
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [visibleOffers, setVisibleOffers] = useState(2);
   const [isAccepting, setIsAccepting] = useState(false);
+  const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
 
   // Contract write hook
   const { writeContractAsync: selectOfferAsync } = useScaffoldWriteContract({
@@ -469,36 +470,13 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
                           </button>
                         </div>
                       ) : (
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-sm font-medium text-beige-700 mb-2 block">
-                              Amount to contribute (ETH)
-                            </label>
-                            <EtherInput value={fundAmount} onChange={setFundAmount} placeholder="0.0" />
-                          </div>
-
-                          <div className="text-center text-sm text-beige-600">
-                            <p>
-                              Remaining:{" "}
-                              {remainingFunding > 0 ? `$${remainingFunding.toLocaleString()}` : "Fully funded!"}
-                            </p>
-                          </div>
-
-                          <button
-                            className={`btn border-none btn-sm rounded-lg shadow-md font-semibold w-full ${
-                              fundAmount && parseFloat(fundAmount) > 0 && remainingFunding > 0
-                                ? "bg-orange-400 hover:bg-orange-500 text-white"
-                                : "bg-beige-300 text-beige-600 cursor-not-allowed"
-                            }`}
-                            disabled={!fundAmount || parseFloat(fundAmount) <= 0 || remainingFunding <= 0}
-                          >
-                            {remainingFunding <= 0
-                              ? "Pool Fully Funded"
-                              : fundAmount && parseFloat(fundAmount) > 0
-                                ? "Fund Pool"
-                                : "Enter Amount"}
-                          </button>
-                        </div>
+                        <button
+                          className="btn bg-orange-400 hover:bg-orange-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold w-full"
+                          onClick={() => setIsFundingModalOpen(true)}
+                          disabled={remainingFunding <= 0}
+                        >
+                          {remainingFunding <= 0 ? "Pool Fully Funded" : "Fund Pool"}
+                        </button>
                       )}
                     </div>
                   </div>
@@ -544,6 +522,12 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
         {/* Add the OfferModal */}
         <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
+        <FundingModal
+          isOpen={isFundingModalOpen}
+          onClose={() => setIsFundingModalOpen(false)}
+          requestId={requestId}
+          remainingFunding={remainingFunding}
+        />
       </div>
     </div>
   );
