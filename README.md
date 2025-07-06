@@ -212,6 +212,16 @@ yarn ipfs           # Deploy to IPFS
 - **Mantle Testnet**
 - **Local Hardhat**
 
+## 📋 Deployed Contracts
+
+### Zircuit Testnet
+- **InsuranceManager**: `0x7C655115aC55C333Fa6B392C5984698AB60d020f`
+- **Explorer**: https://explorer.zircuit.com/address/0x7C655115aC55C333Fa6B392C5984698AB60d020f
+
+### Mantle Testnet
+- **InsuranceManager**: `0x9847C817983D90faA45bC71bCa461AD8f246f2e9`
+- **Explorer**: https://explorer.mantle.xyz/address/0x9847C817983D90faA45bC71bCa461AD8f246f2e9
+
 ---
 
 **RainGuard** - Insurance without middlemen, powered by data and governed by its participants.

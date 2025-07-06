@@ -89,6 +89,16 @@ The deployment scripts automatically use the correct USDC address for each netwo
 | Sepolia | `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238` |
 | Ethereum Mainnet | `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` |
 
+## Deployed Contract Addresses
+
+### Zircuit Testnet
+- **InsuranceManager**: `0x7C655115aC55C333Fa6B392C5984698AB60d020f`
+- **Explorer**: https://explorer.zircuit.com/address/0x7C655115aC55C333Fa6B392C5984698AB60d020f
+
+### Mantle Testnet
+- **InsuranceManager**: `0x9847C817983D90faA45bC71bCa461AD8f246f2e9`
+- **Explorer**: https://explorer.mantle.xyz/address/0x9847C817983D90faA45bC71bCa461AD8f246f2e9
+
 ## Gas Considerations
 
 ### Zircuit
