@@ -4,6 +4,10 @@ import { DeployFunction } from "hardhat-deploy/types";
 // Mapping of network names to USDC addresses
 const usdcAddresses: Record<string, string> = {
   sepolia: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Sepolia USDC
+  zircuit: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff", // Zircuit USDC
+  zircuitTestnet: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff", // Zircuit Testnet USDC
+  mantle: "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9", // Mantle USDC
+  mantleTestnet: "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9", // Mantle Testnet USDC
   // Add other networks here, e.g.:
   // mainnet: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
   // goerli: "0x...",

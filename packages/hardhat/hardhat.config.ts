@@ -151,6 +151,22 @@ const config: HardhatUserConfig = {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: [deployerPrivateKey],
     },
+    zircuit: {
+      url: "https://zircuit1.p2pify.com",
+      accounts: [deployerPrivateKey],
+    },
+    zircuitTestnet: {
+      url: "https://rpc.zircuit.com",
+      accounts: [deployerPrivateKey],
+    },
+    mantle: {
+      url: "https://rpc.mantle.xyz",
+      accounts: [deployerPrivateKey],
+    },
+    mantleTestnet: {
+      url: "https://rpc.testnet.mantle.xyz",
+      accounts: [deployerPrivateKey],
+    },
   },
   // Configuration for harhdat-verify plugin
   etherscan: {
