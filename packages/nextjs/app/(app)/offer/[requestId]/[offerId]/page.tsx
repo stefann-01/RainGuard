@@ -1,6 +1,6 @@
 "use client";
 
-import { formatTimestamp, formatUSDCAmount } from "../../../utils/format.utils";
+import { formatTimestamp, formatUSDCAmount } from "../../../../utils/format.utils";
 import { ChevronLeft } from "lucide-react";
 import { Address } from "~~/components/scaffold-eth";
 
