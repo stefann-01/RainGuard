@@ -23,11 +23,11 @@ const getStatusString = (numericStatus: number): SensorStatus => {
     case 1:
       return "Funding";
     case 2:
-      return "Active";
+      return "Premium Payment";
     case 3:
-      return "Expired";
+      return "Active";
     case 4:
-      return "Cancelled";
+      return "Expired";
     default:
       return DEFAULT_SENSOR_STATUS;
   }

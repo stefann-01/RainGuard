@@ -20,6 +20,12 @@ export default function StatusBadge({ status, className = "" }: StatusBadgeProps
           textColor: "text-skyblue-700",
           text: "Funding",
         };
+      case "Premium Payment":
+        return {
+          bgColor: "bg-orange-200",
+          textColor: "text-orange-800",
+          text: "Premium Payment",
+        };
       case "Active":
         return {
           bgColor: "bg-skyblue-400",
@@ -31,12 +37,6 @@ export default function StatusBadge({ status, className = "" }: StatusBadgeProps
           bgColor: "bg-orange-300",
           textColor: "text-white",
           text: "Expired",
-        };
-      case "Cancelled":
-        return {
-          bgColor: "bg-beige-300",
-          textColor: "text-beige-800",
-          text: "Cancelled",
         };
       default:
         return {

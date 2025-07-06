@@ -18,11 +18,11 @@ const getStatusString = (numericStatus: number): SensorStatus => {
     case 1:
       return "Funding";
     case 2:
-      return "Active";
+      return "Premium Payment";
     case 3:
-      return "Expired";
+      return "Active";
     case 4:
-      return "Cancelled";
+      return "Expired";
     default:
       return DEFAULT_SENSOR_STATUS;
   }
@@ -192,7 +192,7 @@ export default function MyPage() {
     if (!userRequests || !connectedAddress) return;
 
     const totalRequests = userRequests.length;
-    const activeRequests = userRequests.filter(r => r.status === 2).length;
+    const activeRequests = userRequests.filter(r => r.status === 3).length;
     const totalFunded = userRequests.reduce((sum, r) => sum + (r.totalFunded || 0), 0);
 
     // Count expert offers (offers made by the current user in all requests)
