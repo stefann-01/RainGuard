@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     InsuranceManager: {
-      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       abi: [
         {
           inputs: [
@@ -365,6 +365,57 @@ const deployedContracts = {
               internalType: "struct Investment[]",
               name: "",
               type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "offerId",
+              type: "uint256",
+            },
+          ],
+          name: "getOfferById",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+              ],
+              internalType: "struct Offer",
+              name: "",
+              type: "tuple",
             },
           ],
           stateMutability: "view",
@@ -774,6 +825,7 @@ const deployedContracts = {
         getAllRequestIds: "contracts/IInsuranceManager.sol",
         getConditions: "contracts/IInsuranceManager.sol",
         getInvestments: "contracts/IInsuranceManager.sol",
+        getOfferById: "contracts/IInsuranceManager.sol",
         getOffers: "contracts/IInsuranceManager.sol",
         getRequestBasic: "contracts/IInsuranceManager.sol",
         payPremium: "contracts/IInsuranceManager.sol",

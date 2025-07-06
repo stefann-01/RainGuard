@@ -78,6 +78,7 @@ interface IInsuranceManager {
         uint256 selectedOfferId
     );
     function getOffers(uint256 requestId) external view returns (Offer[] memory);
+    function getOfferById(uint256 requestId, uint256 offerId) external view returns (Offer memory);
     function getInvestments(uint256 requestId) external view returns (Investment[] memory);
     function getConditions(uint256 requestId) external view returns (WeatherCondition[] memory);
     function getAllRequestIds() external view returns (uint256[] memory);

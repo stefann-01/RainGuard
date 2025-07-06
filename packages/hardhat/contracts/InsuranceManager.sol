@@ -239,6 +239,12 @@ contract InsuranceManager is IInsuranceManager, Ownable {
         return requests[requestId].offers;
     }
 
+    function getOfferById(uint256 requestId, uint256 offerId) external view returns (Offer memory) {
+        InsuranceRequest storage req = requests[requestId];
+        require(offerId < req.offers.length, "Invalid offer ID");
+        return req.offers[offerId];
+    }
+
     function getInvestments(uint256 requestId) external view returns (Investment[] memory) {
         return requests[requestId].investments;
     }
