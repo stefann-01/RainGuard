@@ -47,7 +47,7 @@ export interface InsuranceRequest {
   end: Date; // Changed from number to Date
   status: number; // 0: pending, 1: funding, 2: active, 3: expired, 4: cancelled
   offers: Offer[];
-  selectedOffer: number; // offer index
+  selectedOffer: number; // ID of the selected offer
   investments: Investment[];
   totalFunded: number;
   payout: boolean;
@@ -55,6 +55,7 @@ export interface InsuranceRequest {
 }
 
 export interface Offer {
+  id: number;
   expert: string;
   premium: number;
   description: string; // Description of the offer terms and conditions

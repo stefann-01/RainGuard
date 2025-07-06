@@ -82,6 +82,7 @@ const RequestCard = ({ requestId }: { requestId: number }) => {
   }));
 
   const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
+    id: Number(offer.id),
     expert: offer.expert,
     premium: Number(offer.premium),
     description: offer.description || "", // Add description with fallback
@@ -219,7 +220,7 @@ export default function MyPage() {
                 description: offer.description || "", // Add description with fallback
                 timestamp: new Date(Number(offer.timestamp) * 1000),
               })),
-              selectedOffer: Number(selectedOffer),
+              selectedOffer: Number(selectedOffer || 0),
               investments: (investments || []).map((investment: any) => ({
                 investor: investment.investor,
                 amount: Number(investment.amount),
