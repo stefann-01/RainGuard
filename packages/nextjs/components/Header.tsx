@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CreateRequestModal from "./CreateRequestModal";
 import { hardhat } from "viem/chains";
-import { PlusIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -27,12 +26,8 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/my-page",
   },
   {
-    label: "D",
-    href: "/debug",
-  },
-  {
-    label: "BE",
-    href: "/blockexplorer",
+    label: "Recommended",
+    href: "/recommended",
   },
 ];
 
@@ -77,32 +72,23 @@ export const Header = () => {
 
   return (
     <>
-      <div className="sticky top-0 navbar bg-beige-200 shadow-md min-h-0 shrink-0 justify-between z-50 pl-12">
-        <div className="navbar-start w-auto lg:w-1/2">
-          <div className="hidden lg:flex items-center ml-12">
-            <div className="flex items-center mr-2">
-              <Image src="/logo.png" alt="Logo" width={40} height={12} className="mr-2" />
-              <span className="font-futura-bold font-bold text-3xl text-beige-900">RainGuard</span>
-            </div>
-            <div className="bg-beige-50 rounded-full shadow-md flex gap-2">
-              <ul className="menu menu-horizontal gap-2">
-                <HeaderMenuLinks />
-              </ul>
-            </div>
-            <div className="relative group flex items-center">
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="group flex items-center justify-center bg-skyblue-400 hover:bg-skyblue-500 text-white border-none shadow-md ml-4 rounded-full h-12 min-w-[3rem] w-auto transition-all duration-500 ease-out overflow-hidden relative px-3 group-hover:px-4"
-              >
-                <PlusIcon className="h-5 w-5 transition-transform duration-500 ease-out group-hover:rotate-90" />
-                <span className="opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[200px] group-hover:ml-2 transition-all duration-500 ease-out whitespace-nowrap overflow-hidden">
-                  Request Insurance
-                </span>
-              </button>
-            </div>
+      <div className="sticky top-0 navbar bg-beige-200 shadow-md min-h-0 shrink-0 z-50">
+        <div className="navbar-start flex items-center ml-22">
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="Logo" width={30} height={9} className="mr-2" />
+            <span className="font-futura-bold font-bold text-xl text-beige-900">RainGuard</span>
           </div>
         </div>
-        <div className="navbar-end grow mr-12 pr-12">
+
+        <div className="navbar-center">
+          <div className="bg-beige-50 rounded-full shadow-md">
+            <ul className="menu menu-horizontal gap-2">
+              <HeaderMenuLinks />
+            </ul>
+          </div>
+        </div>
+
+        <div className="navbar-end mr-22">
           <RainbowKitCustomConnectButton />
           {isLocalNetwork && <FaucetButton />}
         </div>
