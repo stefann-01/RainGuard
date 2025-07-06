@@ -39,15 +39,36 @@ export function formatTimeRange(startDate: Date, endDate: Date): FormattedTime {
 
   // Calculate duration
   const durationMs = endDate.getTime() - startDate.getTime();
-  const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
-  const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+  const durationSeconds = Math.floor(durationMs / 1000);
+  const durationMinutes = Math.floor(durationSeconds / 60);
+  const durationHours = Math.floor(durationMinutes / 60);
+  const durationDays = Math.floor(durationHours / 24);
+  const durationMonths = Math.floor(durationDays / 30);
 
   // Format duration
   let lastingPeriod = "";
-  if (durationHours > 0) {
+
+  if (durationMonths > 0) {
+    lastingPeriod += `${durationMonths}mo`;
+    const remainingDays = durationDays % 30;
+    if (remainingDays > 0) {
+      lastingPeriod += ` ${remainingDays}d`;
+    }
+    const remainingHours = durationHours % 24;
+    if (remainingHours > 0) {
+      lastingPeriod += ` ${remainingHours}h`;
+    }
+  } else if (durationDays > 0) {
+    lastingPeriod += `${durationDays}d`;
+    const remainingHours = durationHours % 24;
+    if (remainingHours > 0) {
+      lastingPeriod += ` ${remainingHours}h`;
+    }
+  } else if (durationHours > 0) {
     lastingPeriod += `${durationHours}h`;
-    if (durationMinutes > 0) {
-      lastingPeriod += ` ${durationMinutes}m`;
+    const remainingMinutes = durationMinutes % 60;
+    if (remainingMinutes > 0) {
+      lastingPeriod += ` ${remainingMinutes}m`;
     }
   } else {
     lastingPeriod = `${durationMinutes}m`;

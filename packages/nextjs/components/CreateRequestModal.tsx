@@ -28,18 +28,18 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
   //revert to reset after dev
   const [formData, setFormData] = useState({
-    title: "Rain Protection for Downtown Event",
-    description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.",
-    amount: "5000",
-    location: "Downtown District, New York, NY",
-    startDateTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16), // Format: "YYYY-MM-DDThh:mm"
-    endDateTime: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 16),
+    title: "",
+    description: "",
+    amount: "",
+    location: "",
+    startDateTime: "",
+    endDateTime: "",
   });
   const [conditions, setConditions] = useState<WeatherConditionForm[]>([
     {
       weatherType: WeatherType.Rain, // RESET: Default weather type
       op: Operator.GreaterThan,
-      aggregateValue: 50, // RESET: Default 50mm rain
+      aggregateValue: 0, // RESET: Default 50mm rain
       subThreshold: 10, // RESET: Default sub-threshold
       subOp: Operator.GreaterThan,
     },
@@ -79,18 +79,18 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
   //revert to reset after dev
   const resetForm = () => {
     setFormData({
-      title: "Rain Protection for Downtown Event", // RESET: Default test title
-      description: "Insurance coverage for our outdoor event against heavy rainfall and strong winds.", // RESET: Default test description
-      amount: "5000", // RESET: Default test amount (USDC)
-      location: "Downtown District, New York, NY", // RESET: Default test location
-      startDateTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16), // RESET: Tomorrow
-      endDateTime: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 16), // RESET: 7 days from now
+      title: "",
+      description: "",
+      amount: "",
+      location: "",
+      startDateTime: "",
+      endDateTime: "",
     });
     setConditions([
       {
         weatherType: WeatherType.Rain, // RESET: Default weather type
         op: Operator.GreaterThan,
-        aggregateValue: 50, // RESET: Default 50mm rain
+        aggregateValue: 0, // RESET: Default 50mm rain
         subThreshold: 10, // RESET: Default sub-threshold
         subOp: Operator.GreaterThan,
       },
@@ -195,7 +195,7 @@ export default function CreateRequestModal({ isOpen, onClose }: CreateRequestMod
 
                 <div>
                   <label className="label">
-                    <span className="label-text font-semibold text-neutral-900">Coverage Amount (USD) *</span>
+                    <span className="label-text font-semibold text-neutral-900">Coverage Amount (USDC) *</span>
                   </label>
                   <input
                     type="number"

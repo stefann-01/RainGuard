@@ -1,19 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatTimeRange, getWeatherTypeIcon } from "../../utils/format.utils";
 import SearchBar from "../_components/SearchBar";
 import StatusBadge from "../_components/StatusBadge";
 import { useAccount } from "wagmi";
-import {
-  DEFAULT_SENSOR_STATUS,
-  InsuranceRequest,
-  Investment,
-  Offer,
-  SensorStatus,
-  WeatherCondition,
-} from "~~/app/types";
+import { DEFAULT_SENSOR_STATUS, InsuranceRequest, SensorStatus } from "~~/app/types";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth/useScaffoldContract";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 
@@ -36,87 +29,7 @@ const getStatusString = (numericStatus: number): SensorStatus => {
 };
 
 // Component to render a single request card
-const RequestCard = ({ requestId }: { requestId: number }) => {
-  const { data: basicData } = useScaffoldReadContract({
-    contractName: "InsuranceManager",
-    functionName: "getRequestBasic",
-    args: [BigInt(requestId)],
-  });
-
-  const { data: conditions } = useScaffoldReadContract({
-    contractName: "InsuranceManager",
-    functionName: "getConditions",
-    args: [BigInt(requestId)],
-  });
-
-  const { data: offers } = useScaffoldReadContract({
-    contractName: "InsuranceManager",
-    functionName: "getOffers",
-    args: [BigInt(requestId)],
-  });
-
-  const { data: investments } = useScaffoldReadContract({
-    contractName: "InsuranceManager",
-    functionName: "getInvestments",
-    args: [BigInt(requestId)],
-  });
-
-  if (!basicData) {
-    return (
-      <div className="card rounded-2xl bg-beige-50 border border-beige-200 shadow-xl">
-        <div className="card-body py-3 px-4">
-          <div className="loading loading-spinner loading-sm"></div>
-          <p className="text-sm text-beige-700">Loading request {requestId}...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Convert Solidity data to TypeScript types
-  const convertedConditions: WeatherCondition[] = (conditions || []).map((condition: any) => ({
-    weatherType: Number(condition.weatherType),
-    op: Number(condition.op),
-    aggregateValue: Number(condition.aggregateValue),
-    subThreshold: Number(condition.subThreshold),
-    subOp: Number(condition.subOp),
-  }));
-
-  const convertedOffers: Offer[] = (offers || []).map((offer: any) => ({
-    id: Number(offer.id),
-    expert: offer.expert,
-    premium: Number(offer.premium),
-    description: offer.description || "", // Add description with fallback
-    timestamp: new Date(Number(offer.timestamp) * 1000),
-  }));
-
-  const convertedInvestments: Investment[] = (investments || []).map((investment: any) => ({
-    investor: investment.investor,
-    amount: Number(investment.amount),
-  }));
-
-  // Destructure the tuple returned by getRequestBasic
-  const [id, title, description, user, amount, location, start, end, status, totalFunded, payout, selectedOffer] =
-    basicData;
-
-  const request: InsuranceRequest = {
-    id: Number(id),
-    title,
-    description,
-    user,
-    amount: Number(amount),
-    conditions: convertedConditions,
-    location,
-    start: new Date(Number(start) * 1000),
-    end: new Date(Number(end) * 1000),
-    status: Number(status),
-    offers: convertedOffers,
-    selectedOffer: Number(selectedOffer),
-    investments: convertedInvestments,
-    totalFunded: Number(totalFunded),
-    payout,
-    timestamp: new Date(),
-  };
-
+const RequestCard = ({ request }: { request: InsuranceRequest }) => {
   const formattedTime = formatTimeRange(request.start, request.end);
   const currentDate = new Date();
   const isPast = request.start < currentDate;
@@ -147,7 +60,7 @@ const RequestCard = ({ requestId }: { requestId: number }) => {
             status={isEnded ? "Expired" : statusString}
             className="h-10 flex items-center rounded-lg border border-beige-300 bg-beige-200 text-beige-800 px-4"
           />
-          <Link href={`/${request.id}`}>
+          <Link href={`/request/${request.id}`}>
             <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm h-10 rounded-lg shadow-md font-semibold">
               View Details
             </button>
@@ -160,32 +73,42 @@ const RequestCard = ({ requestId }: { requestId: number }) => {
 
 export default function MyPage() {
   const { address: connectedAddress } = useAccount();
-  // const [searchQuery, setSearchQuery] = useState("");
-  // const [sortBy, setSortBy] = useState("startDate");
   const [showPast, setShowPast] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
-  const [allRequests, setAllRequests] = useState<InsuranceRequest[]>([]);
+  const [userRequests, setUserRequests] = useState<InsuranceRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Get contract instance
   const { data: contract } = useScaffoldContract({ contractName: "InsuranceManager" });
 
   // Get all request IDs from the contract
-  const { data: requestIds, isLoading } = useScaffoldReadContract({
+  const { data: requestIds } = useScaffoldReadContract({
     contractName: "InsuranceManager",
     functionName: "getAllRequestIds",
   });
 
-  // Fetch all requests' data in parent
-  useEffect(() => {
-    if (!requestIds || !connectedAddress || !contract) return;
-    const fetchAllRequests = async () => {
+  // Memoize the contract address to prevent unnecessary re-renders
+  const contractAddress = useMemo(() => contract?.address, [contract?.address]);
+
+  // Fetch all requests' data once and filter for current user
+  const fetchUserRequests = useCallback(async () => {
+    if (!requestIds || !connectedAddress || !contract) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
       const ids = requestIds.map((id: bigint) => Number(id));
+      const lowerAddr = connectedAddress.toLowerCase();
+
       const requests = await Promise.all(
         ids.map(async (requestId: number) => {
           try {
             // Fetch basic data
             const basicData = await contract.read.getRequestBasic([BigInt(requestId)]);
             if (!basicData) return null;
+
             const [
               id,
               title,
@@ -200,10 +123,17 @@ export default function MyPage() {
               payout,
               selectedOffer,
             ] = basicData;
+
+            // Only process requests for the current user
+            if (user.toLowerCase() !== lowerAddr) return null;
+
             // Fetch offers
             const offers = await contract.read.getOffers([BigInt(requestId)]);
             // Fetch investments
             const investments = await contract.read.getInvestments([BigInt(requestId)]);
+            // Fetch conditions
+            const conditions = await contract.read.getConditions([BigInt(requestId)]);
+
             return {
               id: Number(id),
               title,
@@ -214,10 +144,18 @@ export default function MyPage() {
               start: new Date(Number(start) * 1000),
               end: new Date(Number(end) * 1000),
               status: Number(status),
+              conditions: (conditions || []).map((condition: any) => ({
+                weatherType: Number(condition.weatherType),
+                op: Number(condition.op),
+                aggregateValue: Number(condition.aggregateValue),
+                subThreshold: Number(condition.subThreshold),
+                subOp: Number(condition.subOp),
+              })),
               offers: (offers || []).map((offer: any) => ({
+                id: Number(offer.id),
                 expert: offer.expert,
                 premium: Number(offer.premium),
-                description: offer.description || "", // Add description with fallback
+                description: offer.description || "",
                 timestamp: new Date(Number(offer.timestamp) * 1000),
               })),
               selectedOffer: Number(selectedOffer || 0),
@@ -235,38 +173,47 @@ export default function MyPage() {
           }
         }),
       );
-      setAllRequests(requests.filter(Boolean) as InsuranceRequest[]);
-    };
-    fetchAllRequests();
-  }, [requestIds, connectedAddress, contract]);
+
+      const filteredRequests = requests.filter(Boolean) as InsuranceRequest[];
+      setUserRequests(filteredRequests);
+    } catch (error) {
+      console.error("Error fetching user requests:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [requestIds, connectedAddress, contractAddress]);
+
+  useEffect(() => {
+    fetchUserRequests();
+  }, [fetchUserRequests]);
 
   // Compute user stats
   useEffect(() => {
-    if (!allRequests || !connectedAddress) return;
-    const lowerAddr = connectedAddress.toLowerCase();
-    const userRequests = allRequests.filter(r => r.user?.toLowerCase() === lowerAddr);
+    if (!userRequests || !connectedAddress) return;
+
     const totalRequests = userRequests.length;
     const activeRequests = userRequests.filter(r => r.status === 2).length;
     const totalFunded = userRequests.reduce((sum, r) => sum + (r.totalFunded || 0), 0);
-    // Expert offers: offers in all requests where expert is the user
+
+    // Count expert offers (offers made by the current user in all requests)
     let totalOffers = 0;
-    for (const req of allRequests) {
-      totalOffers += req.offers.filter((offer: any) => offer.expert?.toLowerCase() === lowerAddr).length;
+    for (const req of userRequests) {
+      totalOffers += req.offers.filter(
+        (offer: any) => offer.expert?.toLowerCase() === connectedAddress.toLowerCase(),
+      ).length;
     }
+
     setUserStats({ totalRequests, activeRequests, totalFunded, totalOffers });
-  }, [allRequests, connectedAddress]);
-
-  // const handleSearch = (query: string) => {
-  //   setSearchQuery(query);
-  // };
-
-  // const handleSort = (sortBy: string) => {
-  //   setSortBy(sortBy);
-  // };
+  }, [userRequests, connectedAddress]);
 
   const handleShowPast = (showPast: boolean) => {
     setShowPast(showPast);
   };
+
+  // Memoize filtered requests to prevent unnecessary re-renders
+  const filteredRequests = useMemo(() => {
+    return showPast ? userRequests : userRequests.filter(request => request.end > new Date());
+  }, [userRequests, showPast]);
 
   if (!connectedAddress) {
     return (
@@ -346,17 +293,21 @@ export default function MyPage() {
 
       {/* Cards Grid */}
       <div className="px-24 pb-8 mt-6">
-        {allRequests.length > 0 ? (
+        {filteredRequests.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {allRequests.map(request => (
-              <RequestCard key={request.id} requestId={request.id} />
+            {filteredRequests.map(request => (
+              <RequestCard key={request.id} request={request} />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
             <div className="text-6xl mb-6">📋</div>
             <h2 className="text-2xl font-bold text-beige-900 mb-4">No Insurance Requests Found</h2>
-            <p className="text-beige-700 mb-6">You haven&apos;t created any insurance requests yet.</p>
+            <p className="text-beige-700 mb-6">
+              {showPast
+                ? "You haven't created any insurance requests yet."
+                : "You don't have any active insurance requests."}
+            </p>
             <Link href="/">
               <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-lg rounded-lg shadow-md font-semibold">
                 Browse All Requests
