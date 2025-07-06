@@ -373,7 +373,7 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
                       <div className="flex gap-2">
                         <Link
-                          href={`/offer/${offer.id}`}
+                          href={`/request/${requestId}/${offer.id}`}
                           className="btn border-none btn-sm rounded-lg shadow-md font-semibold flex-1 bg-beige-200 hover:bg-beige-300 text-beige-800"
                         >
                           View Details

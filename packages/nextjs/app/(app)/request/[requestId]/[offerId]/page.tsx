@@ -1,17 +1,18 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { formatTimestamp, formatUSDCAmount } from "../../../../utils/format.utils";
 import { ChevronLeft } from "lucide-react";
 import { Address } from "~~/components/scaffold-eth";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 export default function OfferPage() {
-  // Mock data for the offer
-  const mockOffer = {
-    expert: "0x1234567890123456789012345678901234567890",
-    premium: 5000,
-    description:
-      "This offer is based on historical weather data analysis and risk assessment. Our models suggest a 15% probability of the specified weather conditions occurring during the coverage period. The premium reflects this risk level and includes our standard service fee.",
-    timestamp: new Date(),
+  const params = useParams();
+  const requestId = params.requestId as string;
+  const offerId = params.offerId as string;
+
+  // Add mock data for analytics
+  const mockAnalytics = {
     riskFactors: [
       { name: "Historical Occurrence", value: 75 },
       { name: "Seasonal Risk", value: 85 },
@@ -27,6 +28,33 @@ export default function OfferPage() {
       { month: "Jun", risk: 90 },
     ],
   };
+
+  // Read offer data from the contract
+  const { data: offer, isLoading } = useScaffoldReadContract({
+    contractName: "InsuranceManager",
+    functionName: "getOfferById",
+    args: [BigInt(requestId), BigInt(offerId)],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
+        <div className="flex justify-center items-center h-full">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!offer) {
+    return (
+      <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
+        <div className="flex justify-center items-center h-full">
+          <p className="text-xl">Offer not found</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
@@ -44,22 +72,24 @@ export default function OfferPage() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-3xl font-bold text-beige-900 mb-2">Insurance Offer Details</h1>
-              <div className="text-beige-600">Submitted {formatTimestamp(mockOffer.timestamp)}</div>
+              <div className="text-beige-600">
+                Submitted {formatTimestamp(new Date(Number(offer.timestamp) * 1000))}
+              </div>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold text-skyblue-600">{formatUSDCAmount(mockOffer.premium)}</div>
+              <div className="text-4xl font-bold text-skyblue-600">{formatUSDCAmount(Number(offer.premium))}</div>
               <div className="text-beige-600">Premium</div>
             </div>
           </div>
 
           <div className="bg-white rounded-xl p-4 mb-6">
             <h2 className="font-semibold text-beige-900 mb-2">Expert</h2>
-            <Address address={mockOffer.expert} format="long" />
+            <Address address={offer.expert} format="long" />
           </div>
 
           <div className="bg-white rounded-xl p-4">
             <h2 className="font-semibold text-beige-900 mb-2">Offer Description</h2>
-            <p className="text-beige-700 leading-relaxed">{mockOffer.description}</p>
+            <p className="text-beige-700 leading-relaxed">{offer.description}</p>
           </div>
         </div>
       </div>
@@ -71,7 +101,7 @@ export default function OfferPage() {
           <div className="card-body">
             <h2 className="card-title text-2xl mb-6">Risk Factor Analysis</h2>
             <div className="space-y-4">
-              {mockOffer.riskFactors.map((factor, index) => (
+              {mockAnalytics.riskFactors.map((factor, index) => (
                 <div key={index}>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium text-beige-700">{factor.name}</span>
@@ -80,24 +110,6 @@ export default function OfferPage() {
                   <div className="w-full bg-beige-200 rounded-full h-2.5">
                     <div className="bg-skyblue-400 h-2.5 rounded-full" style={{ width: `${factor.value}%` }}></div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Monthly Risk Trends */}
-        <div className="card bg-white shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title text-2xl mb-6">Monthly Risk Trends</h2>
-            <div className="h-64 flex items-end justify-between">
-              {mockOffer.monthlyData.map((data, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div
-                    className="w-8 bg-skyblue-400 rounded-t-lg transition-all duration-300 hover:bg-skyblue-500"
-                    style={{ height: `${data.risk}%` }}
-                  ></div>
-                  <div className="mt-2 text-sm text-beige-600">{data.month}</div>
                 </div>
               ))}
             </div>
