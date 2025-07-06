@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { get } = hre.deployments;
 
-  console.log("\n 🧪 Setting up test accounts with USDC allowance...");
+  console.log("\n 🧪 Setting up test accounts with USDC and ETH...");
 
   try {
     // Get the deployed contracts
@@ -25,8 +25,44 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const specificAddresses = [
       "0x602FA0DFe6E23DEF2357924Ad7823db240c474a4",
       "0xa6CDB77F78fBfaC98Fc7fE7562c0Ac2A95Ec25AA",
+      "0x35de0a6E396a9d6F6092ecef4E1F2E7bbc5Ae9ce",
     ];
 
+    // ===== ETH FAUCET =====
+    console.log(`\n💰 Fauceting ETH to ${specificAddresses.length} addresses...`);
+
+    // Check deployer's ETH balance
+    const deployerEthBalance = await hre.ethers.provider.getBalance(deployer.address);
+    console.log(`Deployer ETH Balance: ${hre.ethers.formatEther(deployerEthBalance)} ETH`);
+
+    const ethAmount = hre.ethers.parseEther("10"); // 10 ETH per address
+    const totalEthNeeded = ethAmount * BigInt(specificAddresses.length);
+
+    if (deployerEthBalance < totalEthNeeded) {
+      console.log(`❌ Deployer doesn't have enough ETH. Need ${hre.ethers.formatEther(totalEthNeeded)} ETH`);
+      return;
+    }
+
+    // Send ETH to each address
+    for (const address of specificAddresses) {
+      console.log(`\n💸 Sending 10 ETH to ${address}...`);
+
+      try {
+        const ethTx = await deployer.sendTransaction({
+          to: address,
+          value: ethAmount,
+        });
+
+        await ethTx.wait();
+
+        const newEthBalance = await hre.ethers.provider.getBalance(address);
+        console.log(`✅ ETH sent! New balance: ${hre.ethers.formatEther(newEthBalance)} ETH`);
+      } catch (error: any) {
+        console.log(`❌ ETH transfer failed for ${address}: ${error.message}`);
+      }
+    }
+
+    // ===== USDC TRANSFER =====
     // Check deployer's USDC balance
     const deployerBalance = await usdc.balanceOf(deployer.address);
     console.log(`\n📊 Deployer USDC Balance: ${hre.ethers.formatUnits(deployerBalance, 6)} USDC`);
@@ -43,19 +79,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     // Transfer USDC to specific addresses
     for (const address of specificAddresses) {
-      console.log(`\n💸 Transferring to ${address}...`);
+      console.log(`\n💸 Transferring USDC to ${address}...`);
 
       try {
         const transferTx = await usdc.transfer(address, transferAmount);
         await transferTx.wait();
 
         const newBalance = await usdc.balanceOf(address);
-        console.log(`✅ Transfer successful! New balance: ${hre.ethers.formatUnits(newBalance, 6)} USDC`);
+        console.log(`✅ USDC transfer successful! New balance: ${hre.ethers.formatUnits(newBalance, 6)} USDC`);
       } catch (error: any) {
-        console.log(`❌ Transfer failed for ${address}: ${error.message}`);
+        console.log(`❌ USDC transfer failed for ${address}: ${error.message}`);
       }
     }
 
+    // ===== USDC ALLOWANCE SETUP =====
     // Get all signers (test accounts)
     const signers = await hre.ethers.getSigners();
 
@@ -104,22 +141,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     for (const address of specificAddresses) {
       const currentAllowance = await usdc.allowance(address, insuranceManager.address);
       const balance = await usdc.balanceOf(address);
+      const ethBalance = await hre.ethers.provider.getBalance(address);
 
       console.log(`\n📍 ${address}:`);
-      console.log(`  💰 Balance: ${hre.ethers.formatUnits(balance, 6)} USDC`);
-      console.log(`  🔐 Allowance: ${hre.ethers.formatUnits(currentAllowance, 6)} USDC`);
+      console.log(`  💰 USDC Balance: ${hre.ethers.formatUnits(balance, 6)} USDC`);
+      console.log(`  ⚡ ETH Balance: ${hre.ethers.formatEther(ethBalance)} ETH`);
+      console.log(`  🔐 USDC Allowance: ${hre.ethers.formatUnits(currentAllowance, 6)} USDC`);
 
       if (currentAllowance === 0n) {
-        console.log(`  ❌ No allowance - needs manual approval`);
+        console.log(`  ❌ No USDC allowance - needs manual approval`);
         console.log(`  📝 Manual approval needed for ${address}`);
       } else if (currentAllowance < hre.ethers.parseUnits("100000", 6)) {
-        console.log(`  ⚠️  Low allowance - may need more approval`);
+        console.log(`  ⚠️  Low USDC allowance - may need more approval`);
       } else {
-        console.log(`  ✅ Sufficient allowance`);
+        console.log(`  ✅ Sufficient USDC allowance`);
       }
     }
 
-    console.log(`\n🎉 Setup complete! ${successCount}/${setupCount} Hardhat accounts have infinite USDC allowance.`);
+    console.log(`\n🎉 Setup complete!`);
+    console.log(`✅ ${successCount}/${setupCount} Hardhat accounts have infinite USDC allowance.`);
+    console.log(`✅ All addresses have 10 ETH and 100,000 USDC.`);
     console.log(
       `📝 Note: For MetaMask accounts (${specificAddresses.join(", ")}), USDC approval will be handled automatically in the frontend.`,
     );
