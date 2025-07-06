@@ -24,6 +24,8 @@ import {
 } from "~~/app/types";
 import { FundingModal } from "~~/components/FundingModal";
 import { OfferModal } from "~~/components/OfferModal";
+import { PremiumPaymentModal } from "~~/components/PremiumPaymentModal";
+import { SettlePolicyModal } from "~~/components/SettlePolicyModal";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth/useScaffoldReadContract";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth/useScaffoldWriteContract";
@@ -42,11 +44,11 @@ const getStatusString = (numericStatus: number): SensorStatus => {
     case 1:
       return "Funding";
     case 2:
-      return "Active";
+      return "Premium Payment";
     case 3:
-      return "Expired";
+      return "Active";
     case 4:
-      return "Cancelled";
+      return "Expired";
     default:
       return DEFAULT_SENSOR_STATUS;
   }
@@ -61,6 +63,8 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
   const [visibleOffers, setVisibleOffers] = useState(2);
   const [isAccepting, setIsAccepting] = useState(false);
   const [isFundingModalOpen, setIsFundingModalOpen] = useState(false);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
 
   // Contract write hook
   const { writeContractAsync: selectOfferAsync } = useScaffoldWriteContract({
@@ -192,6 +196,12 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
   // Calculate remaining funding needed
   const remainingFunding = fundingGoal - request.totalFunded;
+
+  // Check if pool is fully funded
+  const isPoolFullyFunded = request.totalFunded >= request.amount;
+
+  // Check if policy is ready to be settled (status 3 and period has ended)
+  const isReadyToSettle = request.status === 3 && isEnded;
 
   return (
     <div className="min-h-screen py-8">
@@ -452,33 +462,91 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
 
                     <div className="text-center">
                       <div
-                        className={`badge ${request.status === 2 ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
+                        className={`badge ${request.status === 3 ? "bg-green-100 text-green-800" : "bg-beige-200 text-beige-800"} border-none font-medium`}
                       >
-                        {request.status === 2 ? "🟢 Active" : "⚪ Inactive"}
+                        {request.status === 3 ? "🟢 Active" : "⚪ Inactive"}
                       </div>
                     </div>
 
-                    {/* Fund Pool Section */}
-                    <div className="mt-6 pt-6 border-t border-skyblue-200">
-                      <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Fund This Pool</h3>
+                    {/* Fund Pool Section - Only show if not fully funded */}
+                    {!isPoolFullyFunded && (
+                      <div className="mt-6 pt-6 border-t border-skyblue-200">
+                        <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Fund This Pool</h3>
 
-                      {!isConnected ? (
-                        <div className="text-center">
-                          <p className="text-beige-600 mb-3">Connect your wallet to fund this pool</p>
-                          <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
-                            Connect Wallet
+                        {!isConnected ? (
+                          <div className="text-center">
+                            <p className="text-beige-600 mb-3">Connect your wallet to fund this pool</p>
+                            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
+                              Connect Wallet
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn bg-orange-400 hover:bg-orange-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold w-full"
+                            onClick={() => setIsFundingModalOpen(true)}
+                            disabled={remainingFunding <= 0}
+                          >
+                            {remainingFunding <= 0 ? "Pool Fully Funded" : "Fund Pool"}
                           </button>
-                        </div>
-                      ) : (
-                        <button
-                          className="btn bg-orange-400 hover:bg-orange-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold w-full"
-                          onClick={() => setIsFundingModalOpen(true)}
-                          disabled={remainingFunding <= 0}
-                        >
-                          {remainingFunding <= 0 ? "Pool Fully Funded" : "Fund Pool"}
-                        </button>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Premium Payment Section - Show when pool is fully funded and status is 2 (Premium Payment phase) */}
+                    {isPoolFullyFunded && request.status === 2 && (
+                      <div className="mt-6 pt-6 border-t border-skyblue-200">
+                        <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Premium Payment</h3>
+
+                        {!isConnected ? (
+                          <div className="text-center">
+                            <p className="text-beige-600 mb-3">Connect your wallet to pay premium</p>
+                            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
+                              Connect Wallet
+                            </button>
+                          </div>
+                        ) : !isRequester ? (
+                          <div className="text-center">
+                            <p className="text-beige-600 mb-3">Only the requester can pay the premium</p>
+                            <button
+                              className="btn bg-beige-200 text-beige-600 border-none btn-sm rounded-lg font-semibold"
+                              disabled
+                            >
+                              Not Requester
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn bg-green-400 hover:bg-green-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold w-full"
+                            onClick={() => setIsPremiumModalOpen(true)}
+                          >
+                            Pay Premium ({formatUSDCAmount(selectedOfferDetails.premium)})
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Settlement Section - Show when policy is active and period has ended */}
+                    {isReadyToSettle && (
+                      <div className="mt-6 pt-6 border-t border-orange-200">
+                        <h3 className="text-lg font-semibold text-beige-900 mb-4 text-center">Policy Settlement</h3>
+
+                        {!isConnected ? (
+                          <div className="text-center">
+                            <p className="text-beige-600 mb-3">Connect your wallet to settle policy</p>
+                            <button className="btn bg-skyblue-400 hover:bg-skyblue-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold">
+                              Connect Wallet
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn bg-orange-400 hover:bg-orange-500 text-white border-none btn-sm rounded-lg shadow-md font-semibold w-full"
+                            onClick={() => setIsSettleModalOpen(true)}
+                          >
+                            Settle Policy
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -520,13 +588,26 @@ export default function RequestDetailsPage({ params }: RequestDetailsPageProps) 
           ) : null}
         </div>
 
-        {/* Add the OfferModal */}
+        {/* Add the modals */}
         <OfferModal requestId={requestId} isOpen={isOfferModalOpen} onClose={() => setIsOfferModalOpen(false)} />
         <FundingModal
           isOpen={isFundingModalOpen}
           onClose={() => setIsFundingModalOpen(false)}
           requestId={requestId}
           remainingFunding={remainingFunding}
+        />
+        <PremiumPaymentModal
+          isOpen={isPremiumModalOpen}
+          onClose={() => setIsPremiumModalOpen(false)}
+          requestId={requestId}
+          premiumAmount={selectedOfferDetails?.premium || 0}
+        />
+        <SettlePolicyModal
+          isOpen={isSettleModalOpen}
+          onClose={() => setIsSettleModalOpen(false)}
+          requestId={requestId}
+          coverageAmount={request.amount}
+          payout={request.payout}
         />
       </div>
     </div>
