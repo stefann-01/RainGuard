@@ -377,6 +377,57 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "offerId",
+              type: "uint256",
+            },
+          ],
+          name: "getOfferById",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "expert",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "premium",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+              ],
+              internalType: "struct Offer",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
           ],
           name: "getOffers",
           outputs: [
@@ -774,6 +825,7 @@ const deployedContracts = {
         getAllRequestIds: "contracts/IInsuranceManager.sol",
         getConditions: "contracts/IInsuranceManager.sol",
         getInvestments: "contracts/IInsuranceManager.sol",
+        getOfferById: "contracts/IInsuranceManager.sol",
         getOffers: "contracts/IInsuranceManager.sol",
         getRequestBasic: "contracts/IInsuranceManager.sol",
         payPremium: "contracts/IInsuranceManager.sol",
