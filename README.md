@@ -209,22 +209,8 @@ yarn ipfs           # Deploy to IPFS
 - **Zircuit**
 
 ### Testnet
-- **Mantle Testnet**: For testing and validation
-- **Local Hardhat**: For development and debugging
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
-
-## 📞 Support
-
-- **Documentation**: Check the `/docs` folder for detailed documentation
-- **Issues**: Report bugs and feature requests on GitHub
-- **Discussions**: Join community discussions for questions and ideas
+- **Mantle Testnet**
+- **Local Hardhat**
 
 ---
 
